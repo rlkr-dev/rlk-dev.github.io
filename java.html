@@ -1,0 +1,2029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java for Beginners — Learn, Code, Conquer</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1c2333;
+    --border: #2a3550;
+    --accent: #f97316;
+    --accent2: #38bdf8;
+    --accent3: #a78bfa;
+    --green: #4ade80;
+    --red: #f87171;
+    --yellow: #fbbf24;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --font-head: 'Syne', sans-serif;
+    --font-mono: 'Space Mono', monospace;
+    --font-body: 'DM Sans', sans-serif;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ===== LAYOUT ===== */
+  #app { display: flex; min-height: 100vh; }
+
+  /* ===== SIDEBAR ===== */
+  #sidebar {
+    width: 280px;
+    min-width: 280px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    overflow-y: auto;
+  }
+
+  .logo {
+    padding: 28px 24px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .logo h1 {
+    font-family: var(--font-head);
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+  }
+  .logo span { color: var(--text); }
+  .logo p {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 4px;
+    font-family: var(--font-mono);
+  }
+
+  .progress-bar-wrap {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 6px;
+    font-family: var(--font-mono);
+  }
+  .progress-bar {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+    transition: width 0.5s ease;
+  }
+
+  .lesson-nav { padding: 16px 12px; flex: 1; }
+  .lesson-nav-title {
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    padding: 0 12px 10px;
+  }
+
+  .lesson-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 2px;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    color: var(--muted);
+    font-family: var(--font-body);
+    font-size: 13px;
+  }
+  .lesson-btn:hover { background: var(--surface2); color: var(--text); }
+  .lesson-btn.active { background: rgba(249,115,22,0.12); color: var(--accent); }
+  .lesson-btn.completed { color: var(--green); }
+  .lesson-btn.completed .lesson-num { background: var(--green); color: #000; }
+
+  .lesson-num {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+  .lesson-btn.active .lesson-num { background: var(--accent); color: #fff; }
+
+  .lesson-info { flex: 1; min-width: 0; }
+  .lesson-title-sm { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .lesson-duration { font-size: 11px; color: var(--muted); margin-top: 1px; font-family: var(--font-mono); }
+
+  .sidebar-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--muted);
+    font-family: var(--font-mono);
+  }
+
+  /* ===== MAIN CONTENT ===== */
+  #main {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 100vh;
+  }
+
+  .lesson-header {
+    padding: 40px 48px 0;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 32px;
+  }
+  .lesson-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    background: rgba(249,115,22,0.1);
+    border: 1px solid rgba(249,115,22,0.3);
+    border-radius: 20px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+  .lesson-main-title {
+    font-family: var(--font-head);
+    font-size: 36px;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -1px;
+    margin-bottom: 12px;
+  }
+  .lesson-main-title em { color: var(--accent); font-style: normal; }
+  .lesson-subtitle { color: var(--muted); font-size: 16px; max-width: 600px; line-height: 1.6; }
+
+  .lesson-meta {
+    display: flex;
+    gap: 24px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  .meta-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--muted);
+    font-family: var(--font-mono);
+  }
+  .meta-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+  /* ===== CONTENT AREA ===== */
+  .lesson-content { padding: 40px 48px; max-width: 900px; }
+
+  .section-block {
+    margin-bottom: 48px;
+  }
+
+  .section-heading {
+    font-family: var(--font-head);
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-heading::before {
+    content: '';
+    width: 4px;
+    height: 22px;
+    background: var(--accent);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .prose {
+    color: #cbd5e1;
+    line-height: 1.8;
+    font-size: 15px;
+    margin-bottom: 16px;
+  }
+  .prose strong { color: var(--text); font-weight: 600; }
+  .prose em { color: var(--accent2); font-style: normal; }
+
+  /* ===== ANALOGY CARD ===== */
+  .analogy-card {
+    background: linear-gradient(135deg, rgba(56,189,248,0.07), rgba(167,139,250,0.07));
+    border: 1px solid rgba(56,189,248,0.2);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin: 20px 0;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .analogy-icon { font-size: 24px; flex-shrink: 0; margin-top: 2px; }
+  .analogy-label {
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--accent2);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+  .analogy-text { font-size: 14px; color: #94a3b8; line-height: 1.7; }
+  .analogy-text strong { color: var(--text); }
+
+  /* ===== CODE BLOCK ===== */
+  .code-wrap {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 20px 0;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  }
+  .code-header {
+    padding: 10px 16px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .code-dots { display: flex; gap: 6px; }
+  .code-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .code-dot.r { background: #ff5f57; }
+  .code-dot.y { background: #ffbd2e; }
+  .code-dot.g { background: #28ca41; }
+  .code-filename {
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--muted);
+    margin-left: 6px;
+  }
+  pre {
+    padding: 20px;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.8;
+  }
+  .kw { color: #ff79c6; }
+  .cls { color: #50fa7b; }
+  .fn { color: #8be9fd; }
+  .str { color: #f1fa8c; }
+  .num { color: #bd93f9; }
+  .cmt { color: #6272a4; font-style: italic; }
+  .type { color: #ffb86c; }
+  .var-name { color: #f8f8f2; }
+
+  /* ===== QUIZ SECTION ===== */
+  .quiz-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px;
+    margin: 32px 0;
+  }
+  .quiz-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .quiz-icon {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, var(--accent), #fb923c);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+  .quiz-title {
+    font-family: var(--font-head);
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .quiz-subtitle { font-size: 12px; color: var(--muted); font-family: var(--font-mono); }
+
+  .quiz-question {
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 14px;
+    line-height: 1.6;
+    color: var(--text);
+  }
+  .quiz-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+  .quiz-option {
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+    background: var(--surface2);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .quiz-option:hover:not(.disabled) { border-color: var(--accent2); background: rgba(56,189,248,0.06); }
+  .quiz-option.correct { border-color: var(--green); background: rgba(74,222,128,0.08); color: var(--green); }
+  .quiz-option.wrong { border-color: var(--red); background: rgba(248,113,113,0.08); color: var(--red); }
+  .quiz-option.disabled { cursor: default; }
+  .option-letter {
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    background: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .quiz-feedback {
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    display: none;
+    line-height: 1.6;
+  }
+  .quiz-feedback.correct { background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.3); color: var(--green); }
+  .quiz-feedback.wrong { background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.3); color: var(--red); }
+  .quiz-feedback.show { display: block; }
+
+  .quiz-nav {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+    justify-content: flex-end;
+  }
+
+  /* ===== BUG HUNT GAME ===== */
+  .bug-hunt {
+    background: var(--surface);
+    border: 1px solid rgba(251,191,36,0.3);
+    border-radius: 14px;
+    overflow: hidden;
+    margin: 32px 0;
+  }
+  .bug-hunt-header {
+    background: linear-gradient(135deg, rgba(251,191,36,0.12), rgba(249,115,22,0.12));
+    padding: 18px 24px;
+    border-bottom: 1px solid rgba(251,191,36,0.2);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .bug-hunt-title {
+    font-family: var(--font-head);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--yellow);
+  }
+  .bug-hunt-body { padding: 24px; }
+  .bug-prompt { font-size: 14px; color: var(--muted); margin-bottom: 16px; line-height: 1.6; }
+
+  .code-line {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 2px;
+  }
+  .code-line:hover:not(.selected):not(.locked) { background: rgba(251,191,36,0.06); }
+  .code-line.selected { background: rgba(251,191,36,0.12); border: 1px solid rgba(251,191,36,0.3); }
+  .code-line.correct-bug { background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.3); }
+  .code-line.wrong-pick { background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); }
+  .code-line.locked { cursor: default; }
+  .line-num {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+    min-width: 20px;
+    text-align: right;
+  }
+  .line-code { font-family: var(--font-mono); font-size: 13px; flex: 1; }
+
+  .bug-actions { display: flex; gap: 10px; margin-top: 16px; align-items: center; }
+  .bug-score { font-size: 13px; font-family: var(--font-mono); color: var(--muted); margin-left: auto; }
+
+  /* ===== FILL-IN EXERCISE ===== */
+  .fill-exercise {
+    background: var(--surface);
+    border: 1px solid rgba(167,139,250,0.3);
+    border-radius: 14px;
+    overflow: hidden;
+    margin: 32px 0;
+  }
+  .fill-header {
+    background: rgba(167,139,250,0.08);
+    padding: 16px 24px;
+    border-bottom: 1px solid rgba(167,139,250,0.2);
+    font-family: var(--font-head);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent3);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .fill-body { padding: 24px; }
+  .fill-description { font-size: 14px; color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
+  .fill-code {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 2.2;
+    background: #0d1117;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+  .fill-blank {
+    display: inline-block;
+    border-bottom: 2px solid var(--accent3);
+    min-width: 80px;
+    padding: 0 4px;
+    outline: none;
+    background: rgba(167,139,250,0.06);
+    border-radius: 3px;
+    color: var(--accent3);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    text-align: center;
+    cursor: text;
+  }
+  .fill-blank:focus { background: rgba(167,139,250,0.12); }
+  .fill-blank.correct { background: rgba(74,222,128,0.1); border-color: var(--green); color: var(--green); }
+  .fill-blank.wrong { background: rgba(248,113,113,0.1); border-color: var(--red); color: var(--red); }
+
+  /* ===== DRAG AND DROP - CODE SORTER ===== */
+  .sorter-game {
+    background: var(--surface);
+    border: 1px solid rgba(56,189,248,0.3);
+    border-radius: 14px;
+    overflow: hidden;
+    margin: 32px 0;
+  }
+  .sorter-header {
+    background: rgba(56,189,248,0.08);
+    padding: 16px 24px;
+    border-bottom: 1px solid rgba(56,189,248,0.2);
+    font-family: var(--font-head);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent2);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .sorter-body { padding: 24px; }
+  .sorter-description { font-size: 14px; color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
+  .sortable-list { display: flex; flex-direction: column; gap: 6px; }
+  .sort-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: grab;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .sort-item:hover { border-color: var(--accent2); }
+  .sort-item.dragging { opacity: 0.4; }
+  .sort-item.drag-over { border-color: var(--accent2); background: rgba(56,189,248,0.08); }
+  .sort-item.correct-pos { border-color: var(--green); background: rgba(74,222,128,0.06); }
+  .sort-item.wrong-pos { border-color: var(--red); background: rgba(248,113,113,0.06); }
+  .drag-handle { color: var(--muted); cursor: grab; font-size: 16px; }
+  .sort-num {
+    width: 22px;
+    height: 22px;
+    background: var(--border);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: var(--muted);
+    font-family: var(--font-mono);
+  }
+
+  /* ===== BUTTONS ===== */
+  .btn {
+    padding: 9px 20px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    font-family: var(--font-body);
+    font-weight: 500;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #ea6c00; transform: translateY(-1px); }
+  .btn-secondary { background: var(--surface2); border: 1px solid var(--border); color: var(--text); }
+  .btn-secondary:hover { border-color: var(--accent2); color: var(--accent2); }
+  .btn-success { background: rgba(74,222,128,0.15); border: 1px solid rgba(74,222,128,0.3); color: var(--green); }
+  .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+  .btn-ghost:hover { color: var(--text); border-color: var(--text); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+
+  /* ===== CONCEPT CARDS ===== */
+  .concept-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+    margin: 20px 0;
+  }
+  .concept-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    transition: all 0.2s;
+  }
+  .concept-card:hover { border-color: var(--accent2); transform: translateY(-2px); }
+  .concept-emoji { font-size: 28px; margin-bottom: 10px; }
+  .concept-name { font-family: var(--font-head); font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+  .concept-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+  /* ===== LESSON NAV FOOTER ===== */
+  .lesson-footer {
+    padding: 32px 48px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* ===== SCORE TRACKER ===== */
+  .score-bar {
+    display: flex;
+    gap: 6px;
+    padding: 0 24px 16px;
+  }
+  .score-pip {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: all 0.3s;
+  }
+  .score-pip.earned { background: var(--green); box-shadow: 0 0 8px rgba(74,222,128,0.5); }
+
+  /* ===== WELCOME SCREEN ===== */
+  #welcome-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 60px 40px;
+    text-align: center;
+  }
+  .welcome-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    background: rgba(249,115,22,0.12);
+    border: 1px solid rgba(249,115,22,0.3);
+    border-radius: 20px;
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--accent);
+    margin-bottom: 24px;
+    letter-spacing: 1px;
+  }
+  .welcome-title {
+    font-family: var(--font-head);
+    font-size: 56px;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -2px;
+    margin-bottom: 20px;
+  }
+  .welcome-title .highlight { color: var(--accent); }
+  .welcome-subtitle {
+    font-size: 18px;
+    color: var(--muted);
+    max-width: 540px;
+    margin: 0 auto 40px;
+    line-height: 1.7;
+  }
+  .lesson-cards-preview {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    max-width: 800px;
+    margin: 0 auto 40px;
+  }
+  .preview-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .preview-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+  .preview-num { font-family: var(--font-mono); font-size: 11px; color: var(--accent); margin-bottom: 8px; }
+  .preview-name { font-family: var(--font-head); font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .preview-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+  .hidden { display: none !important; }
+
+  /* ===== COMPLETION BADGE ===== */
+  .completion-toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--surface);
+    border: 1px solid var(--green);
+    border-radius: 12px;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    transform: translateX(120%);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 100;
+  }
+  .completion-toast.show { transform: translateX(0); }
+
+  /* ===== SCROLLBAR ===== */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+  /* ===== INFO BOX ===== */
+  .info-box {
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    font-size: 14px;
+    line-height: 1.7;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .info-box.tip { background: rgba(56,189,248,0.06); border: 1px solid rgba(56,189,248,0.2); color: #93c5fd; }
+  .info-box.warning { background: rgba(251,191,36,0.06); border: 1px solid rgba(251,191,36,0.2); color: #fcd34d; }
+  .info-box.note { background: rgba(167,139,250,0.06); border: 1px solid rgba(167,139,250,0.2); color: #c4b5fd; }
+  .info-icon { font-size: 18px; flex-shrink: 0; }
+
+  /* ===== TABLE ===== */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 14px;
+  }
+  .data-table th {
+    background: var(--surface2);
+    padding: 10px 14px;
+    text-align: left;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--accent2);
+    border-bottom: 1px solid var(--border);
+  }
+  .data-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(42,53,80,0.5);
+    color: #94a3b8;
+    font-family: var(--font-mono);
+    font-size: 13px;
+  }
+  .data-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+  @media (max-width: 768px) {
+    #sidebar { width: 60px; min-width: 60px; }
+    .lesson-info, .logo p, .progress-bar-wrap, .lesson-nav-title, .sidebar-footer { display: none; }
+    .lesson-content, .lesson-header { padding: 24px 20px; }
+    .lesson-footer { padding: 20px; flex-direction: column; gap: 12px; }
+    .welcome-title { font-size: 36px; }
+    .lesson-cards-preview { grid-template-columns: 1fr; }
+    .concept-grid { grid-template-columns: 1fr 1fr; }
+    .logo h1 { font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="toast" class="completion-toast">
+  <span>🎉</span>
+  <span id="toast-msg">Section completed! +10 XP</span>
+</div>
+
+<div id="app">
+  <!-- SIDEBAR -->
+  <aside id="sidebar">
+    <div class="logo">
+      <h1>☕ <span>Java</span>101</h1>
+      <p>// beginner_track.java</p>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-label">
+        <span>OVERALL PROGRESS</span>
+        <span id="progress-pct">0%</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    </div>
+    <nav class="lesson-nav">
+      <div class="lesson-nav-title">Lessons</div>
+      <button class="lesson-btn" onclick="goLesson(0)" id="nav-0">
+        <div class="lesson-num">1</div>
+        <div class="lesson-info">
+          <div class="lesson-title-sm">Java Fundamentals</div>
+          <div class="lesson-duration">⏱ 1.5 hrs</div>
+        </div>
+      </button>
+      <button class="lesson-btn" onclick="goLesson(1)" id="nav-1">
+        <div class="lesson-num">2</div>
+        <div class="lesson-info">
+          <div class="lesson-title-sm">Variables & Data Types</div>
+          <div class="lesson-duration">⏱ 1.5 hrs</div>
+        </div>
+      </button>
+      <button class="lesson-btn" onclick="goLesson(2)" id="nav-2">
+        <div class="lesson-num">3</div>
+        <div class="lesson-info">
+          <div class="lesson-title-sm">Control Flow</div>
+          <div class="lesson-duration">⏱ 1.5 hrs</div>
+        </div>
+      </button>
+      <button class="lesson-btn" onclick="goLesson(3)" id="nav-3">
+        <div class="lesson-num">4</div>
+        <div class="lesson-info">
+          <div class="lesson-title-sm">Methods & Functions</div>
+          <div class="lesson-duration">⏱ 1.5 hrs</div>
+        </div>
+      </button>
+      <button class="lesson-btn" onclick="goLesson(4)" id="nav-4">
+        <div class="lesson-num">5</div>
+        <div class="lesson-info">
+          <div class="lesson-title-sm">Arrays & Collections</div>
+          <div class="lesson-duration">⏱ 1.5 hrs</div>
+        </div>
+      </button>
+      <button class="lesson-btn" onclick="goLesson(5)" id="nav-5">
+        <div class="lesson-num">6</div>
+        <div class="lesson-info">
+          <div class="lesson-title-sm">OOP Basics</div>
+          <div class="lesson-duration">⏱ 1.5 hrs</div>
+        </div>
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <div>🏆 XP: <span id="xp-display">0</span></div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main id="main">
+
+    <!-- WELCOME -->
+    <div id="welcome-screen">
+      <div class="welcome-badge">✦ BEGINNER TRACK · 6 LESSONS · ~9 HOURS</div>
+      <h1 class="welcome-title">Learn <span class="highlight">Java</span><br>From Scratch</h1>
+      <p class="welcome-subtitle">No experience needed. We use plain English, real-world analogies, and hands-on exercises to make Java click — fast.</p>
+      <div class="lesson-cards-preview">
+        <div class="preview-card" onclick="goLesson(0)">
+          <div class="preview-num">LESSON 01</div>
+          <div class="preview-name">☕ Java Fundamentals</div>
+          <div class="preview-desc">What is Java? Your first program. How computers read code.</div>
+        </div>
+        <div class="preview-card" onclick="goLesson(1)">
+          <div class="preview-num">LESSON 02</div>
+          <div class="preview-name">📦 Variables & Data Types</div>
+          <div class="preview-desc">Storing information. Numbers, text, true/false values.</div>
+        </div>
+        <div class="preview-card" onclick="goLesson(2)">
+          <div class="preview-num">LESSON 03</div>
+          <div class="preview-name">🔀 Control Flow</div>
+          <div class="preview-desc">Making decisions with if/else. Repeating with loops.</div>
+        </div>
+        <div class="preview-card" onclick="goLesson(3)">
+          <div class="preview-num">LESSON 04</div>
+          <div class="preview-name">🔧 Methods</div>
+          <div class="preview-desc">Writing reusable blocks of code. Parameters & return values.</div>
+        </div>
+        <div class="preview-card" onclick="goLesson(4)">
+          <div class="preview-num">LESSON 05</div>
+          <div class="preview-name">📋 Arrays & Lists</div>
+          <div class="preview-desc">Storing multiple values. ArrayList and how to loop them.</div>
+        </div>
+        <div class="preview-card" onclick="goLesson(5)">
+          <div class="preview-num">LESSON 06</div>
+          <div class="preview-name">🏗️ OOP Basics</div>
+          <div class="preview-desc">Classes, Objects, and why Java is built this way.</div>
+        </div>
+      </div>
+      <button class="btn btn-primary" style="font-size:16px; padding: 14px 36px; border-radius: 12px;" onclick="goLesson(0)">
+        🚀 Start Learning
+      </button>
+    </div>
+
+    <!-- LESSON PAGES (generated by JS) -->
+    <div id="lesson-container" class="hidden"></div>
+
+  </main>
+</div>
+
+<script>
+// ===== STATE =====
+let currentLesson = -1;
+let xp = 0;
+let completedLessons = new Set();
+let quizAnswered = {};
+let bugAnswered = {};
+
+function addXP(amount, msg) {
+  xp += amount;
+  document.getElementById('xp-display').textContent = xp;
+  showToast(msg || `+${amount} XP`);
+  updateProgress();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function updateProgress() {
+  const pct = Math.min(100, Math.round((completedLessons.size / 6) * 100));
+  document.getElementById('progress-pct').textContent = pct + '%';
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+
+// ===== LESSONS DATA =====
+const LESSONS = [
+  // LESSON 1
+  {
+    title: 'Java Fundamentals',
+    subtitle: 'Your very first steps — what Java is, why it matters, and writing your first program.',
+    color: '#f97316',
+    icon: '☕',
+    sections: [
+      {
+        type: 'content',
+        heading: 'What is Java?',
+        prose: `Java is a <strong>programming language</strong> — a way to give instructions to a computer. Think of it like writing a recipe: you list every single step clearly, and the computer follows it exactly.
+
+Java was created in 1995 and is used <em>everywhere</em>: Android apps, banking systems, video games, websites, and NASA spacecraft software all use Java. Once you learn Java, you have a skill that's needed all over the world.`,
+        analogy: {
+          icon: '🍳',
+          label: 'Real-World Analogy',
+          text: 'Imagine you want to teach a <strong>robot chef</strong> to make a sandwich. The robot can\'t guess — you must list <em>every step</em> ("open the bread bag", "take two slices", "spread butter"). Java is exactly that: precise instructions your computer follows step by step.'
+        }
+      },
+      {
+        type: 'content',
+        heading: 'Your First Java Program',
+        prose: 'Every Java program starts with a <strong>class</strong> and a <strong>main method</strong>. Don\'t worry about what those mean just yet — think of it as the "front door" your program walks through when it starts.',
+        code: {
+          filename: 'HelloWorld.java',
+          html: `<span class="kw">public class</span> <span class="cls">HelloWorld</span> {
+
+    <span class="kw">public static void</span> <span class="fn">main</span>(<span class="type">String</span>[] args) {
+    
+        <span class="cmt">// This line prints text to the screen</span>
+        System.out.println(<span class="str">"Hello, World!"</span>);
+        
+    }
+    
+}`
+        }
+      },
+      {
+        type: 'concepts',
+        heading: 'Key Terms to Know',
+        cards: [
+          { emoji: '📂', name: 'Class', desc: 'A container that holds your code. Like a folder.' },
+          { emoji: '▶️', name: 'main method', desc: 'The entry point — where your program starts running.' },
+          { emoji: '🖨️', name: 'System.out.println', desc: 'The command to print text on screen.' },
+          { emoji: '💬', name: 'Comment', desc: 'Text starting with // that Java ignores — it\'s for humans!' },
+          { emoji: '📄', name: '.java file', desc: 'The file extension for all Java source code.' },
+          { emoji: '⚙️', name: 'JVM', desc: 'Java Virtual Machine — runs your compiled code on any computer.' }
+        ]
+      },
+      {
+        type: 'info',
+        boxes: [
+          { type: 'tip', icon: '💡', text: '<strong>Tip:</strong> Java is case-sensitive! <code style="color:#f97316">System</code> is NOT the same as <code style="color:#f97316">system</code>. The capital S matters.' },
+          { type: 'warning', icon: '⚠️', text: '<strong>Common mistake:</strong> Every statement in Java must end with a semicolon <code style="color:#fbbf24">;</code> — like a full stop at the end of a sentence.' }
+        ]
+      },
+      {
+        type: 'quiz',
+        id: 'q1',
+        question: 'What does System.out.println() do in Java?',
+        options: ['Saves a file to disk', 'Prints text on the screen', 'Creates a new class', 'Deletes data from memory'],
+        correct: 1,
+        feedback: '✅ Correct! System.out.println() is how you display output on the screen in Java. "println" stands for "print line".'
+      },
+      {
+        type: 'quiz',
+        id: 'q1b',
+        question: 'Which character MUST appear at the end of most Java statements?',
+        options: ['Period ( . )', 'Colon ( : )', 'Semicolon ( ; )', 'Asterisk ( * )'],
+        correct: 2,
+        feedback: '✅ Correct! The semicolon ; is required at the end of every Java statement. Forgetting it is one of the most common beginner errors!'
+      },
+      {
+        type: 'bughunt',
+        id: 'bh1',
+        title: '🐛 Bug Hunt — Find the Error!',
+        description: 'The code below has ONE mistake that will prevent it from running. Click the line you think contains the bug, then check your answer.',
+        lines: [
+          { code: 'public class HelloWorld {', correct: false },
+          { code: '    public static void main(String[] args) {', correct: false },
+          { code: '        System.out.println("Hello World")', correct: true, hint: 'Missing semicolon at the end!' },
+          { code: '    }', correct: false },
+          { code: '}', correct: false }
+        ]
+      },
+      {
+        type: 'sorter',
+        id: 's1',
+        title: '🔀 Code Sorter — Put It In Order!',
+        description: 'Drag and drop these lines to build a valid Java program that prints "I love Java!"',
+        items: [
+          { id: 'a', code: 'public class MyFirst {', order: 0 },
+          { id: 'b', code: '    System.out.println("I love Java!");', order: 2 },
+          { id: 'c', code: '}', order: 4 },
+          { id: 'd', code: '    public static void main(String[] args) {', order: 1 },
+          { id: 'e', code: '    }', order: 3 }
+        ]
+      }
+    ]
+  },
+
+  // LESSON 2
+  {
+    title: 'Variables & Data Types',
+    subtitle: 'Learn how to store information in your program — numbers, text, and more.',
+    color: '#38bdf8',
+    icon: '📦',
+    sections: [
+      {
+        type: 'content',
+        heading: 'What is a Variable?',
+        prose: `A variable is like a <strong>labelled box</strong> where you store information. You give the box a name, and whenever you need the information, you just use the name.
+
+In Java, you must also tell Java <em>what type of thing</em> goes in the box — a number, text, true/false, etc. Java is very organized this way!`,
+        analogy: {
+          icon: '📦',
+          label: 'Real-World Analogy',
+          text: 'Imagine boxes in a storage room. Each box has a <strong>label</strong> (the variable name) and a <strong>type</strong> (e.g., "Books only" or "Electronics only"). Java requires you to say what type of box before storing anything in it.'
+        }
+      },
+      {
+        type: 'content',
+        heading: 'The 4 Most Common Data Types',
+        prose: 'Java has several data types. Here are the four you\'ll use most as a beginner:',
+        code: {
+          filename: 'DataTypes.java',
+          html: `<span class="kw">public class</span> <span class="cls">DataTypes</span> {
+    <span class="kw">public static void</span> <span class="fn">main</span>(<span class="type">String</span>[] args) {
+
+        <span class="cmt">// int = whole numbers (no decimal)</span>
+        <span class="type">int</span> <span class="var-name">age</span> = <span class="num">25</span>;
+        
+        <span class="cmt">// double = numbers with decimal points</span>
+        <span class="type">double</span> <span class="var-name">price</span> = <span class="num">9.99</span>;
+        
+        <span class="cmt">// String = text (always in "quotes")</span>
+        <span class="type">String</span> <span class="var-name">name</span> = <span class="str">"Alice"</span>;
+        
+        <span class="cmt">// boolean = true or false only</span>
+        <span class="type">boolean</span> <span class="var-name">isStudent</span> = <span class="kw">true</span>;
+        
+        System.out.println(<span class="str">"Name: "</span> + <span class="var-name">name</span>);
+        System.out.println(<span class="str">"Age: "</span> + <span class="var-name">age</span>);
+
+    }
+}`
+        }
+      },
+      {
+        type: 'table',
+        heading: 'Data Type Quick Reference',
+        headers: ['Type', 'What it stores', 'Example'],
+        rows: [
+          ['int', 'Whole numbers', '42, -7, 1000'],
+          ['double', 'Decimal numbers', '3.14, -0.5, 99.99'],
+          ['String', 'Text (words, sentences)', '"Hello", "Java is fun"'],
+          ['boolean', 'Only true or false', 'true, false'],
+          ['char', 'A single character', '\'A\', \'7\', \'?\''],
+          ['long', 'Very large whole numbers', '9000000000L'],
+        ]
+      },
+      {
+        type: 'content',
+        heading: 'Changing Variable Values',
+        prose: 'You can change a variable\'s value at any time — that\'s why it\'s called a <strong>variable</strong> (it varies!). Notice you don\'t repeat the type when updating:',
+        code: {
+          filename: 'Changing.java',
+          html: `<span class="type">int</span> <span class="var-name">score</span> = <span class="num">0</span>;        <span class="cmt">// Start at 0</span>
+<span class="var-name">score</span> = <span class="num">10</span>;           <span class="cmt">// Now it's 10</span>
+<span class="var-name">score</span> = <span class="var-name">score</span> + <span class="num">5</span>;   <span class="cmt">// Add 5 → now it's 15</span>
+<span class="var-name">score</span>++;              <span class="cmt">// Add 1 → now it's 16</span>
+System.out.println(<span class="var-name">score</span>); <span class="cmt">// Prints: 16</span>`
+        }
+      },
+      {
+        type: 'info',
+        boxes: [
+          { type: 'tip', icon: '💡', text: '<strong>Naming rules:</strong> Variable names start with a lowercase letter. Use camelCase for multi-word names: <code style="color:#38bdf8">firstName</code>, <code style="color:#38bdf8">totalScore</code>, <code style="color:#38bdf8">isActive</code>' },
+          { type: 'note', icon: '📝', text: '<strong>const values:</strong> Add <code style="color:#a78bfa">final</code> before a variable to make it unchangeable: <code style="color:#a78bfa">final int MAX_SCORE = 100;</code> — by convention, constants use ALL_CAPS.' }
+        ]
+      },
+      {
+        type: 'quiz',
+        id: 'q2a',
+        question: 'Which data type would you use to store someone\'s age (e.g., 23)?',
+        options: ['String', 'boolean', 'double', 'int'],
+        correct: 3,
+        feedback: '✅ Correct! Age is a whole number, so int is the right choice. We\'d use double if it had a decimal, like 23.5.'
+      },
+      {
+        type: 'quiz',
+        id: 'q2b',
+        question: 'What is the value of x after this code runs?\nint x = 5;\nx = x * 2;',
+        options: ['5', '10', '52', 'Error'],
+        correct: 1,
+        feedback: '✅ Correct! x starts at 5, then x * 2 = 10. So x is now 10.'
+      },
+      {
+        type: 'fillin',
+        id: 'f2',
+        description: 'Fill in the blanks to correctly declare variables for a student\'s name, age, and whether they passed.',
+        lines: [
+          { before: '', blank: 'String', after: ' studentName = "Bob";', answer: 'String' },
+          { before: '', blank: 'int', after: ' studentAge = 20;', answer: 'int' },
+          { before: '', blank: 'boolean', after: ' passed = true;', answer: 'boolean' },
+        ]
+      },
+      {
+        type: 'bughunt',
+        id: 'bh2',
+        title: '🐛 Bug Hunt — Variables Gone Wrong',
+        description: 'One line below has a bug. Can you spot it?',
+        lines: [
+          { code: 'String city = "Singapore";', correct: false },
+          { code: 'int population = 5900000;', correct: false },
+          { code: 'double temperature = 31.5', correct: true, hint: 'Missing semicolon at the end of the line!' },
+          { code: 'boolean isHot = true;', correct: false },
+        ]
+      }
+    ]
+  },
+
+  // LESSON 3
+  {
+    title: 'Control Flow',
+    subtitle: 'Make your program think! Use if/else to make decisions, and loops to repeat actions.',
+    color: '#a78bfa',
+    icon: '🔀',
+    sections: [
+      {
+        type: 'content',
+        heading: 'Making Decisions with if / else',
+        prose: `Programs need to make decisions. Java uses <strong>if/else</strong> statements — just like real life! "If it's raining, take an umbrella. Otherwise, wear sunglasses."
+
+The condition inside the parentheses must evaluate to <em>true</em> or <em>false</em>.`,
+        analogy: {
+          icon: '🚦',
+          label: 'Real-World Analogy',
+          text: 'A traffic light: <strong>If</strong> the light is green → go. <strong>Else if</strong> it\'s yellow → slow down. <strong>Else</strong> it\'s red → stop. Java\'s if/else works exactly like this flow of decisions.'
+        },
+        code: {
+          filename: 'Decisions.java',
+          html: `<span class="type">int</span> <span class="var-name">age</span> = <span class="num">17</span>;
+
+<span class="kw">if</span> (<span class="var-name">age</span> >= <span class="num">18</span>) {
+    System.out.println(<span class="str">"You can vote!"</span>);
+} <span class="kw">else if</span> (<span class="var-name">age</span> >= <span class="num">16</span>) {
+    System.out.println(<span class="str">"Almost there — 2 more years!"</span>);
+} <span class="kw">else</span> {
+    System.out.println(<span class="str">"Too young to vote."</span>);
+}
+<span class="cmt">// Output: Almost there — 2 more years!</span>`
+        }
+      },
+      {
+        type: 'content',
+        heading: 'Comparison Operators',
+        prose: 'These are used to compare values inside if conditions:',
+        code: {
+          filename: 'Operators.java',
+          html: `<span class="cmt">// == means "is equal to"   (note: double equals!)</span>
+<span class="kw">if</span> (<span class="var-name">x</span> == <span class="num">5</span>)    <span class="cmt">// Is x equal to 5?</span>
+
+<span class="cmt">// != means "is NOT equal to"</span>
+<span class="kw">if</span> (<span class="var-name">x</span> != <span class="num">5</span>)    <span class="cmt">// Is x different from 5?</span>
+
+<span class="cmt">// > greater than  / < less than</span>
+<span class="kw">if</span> (<span class="var-name">score</span> > <span class="num">80</span>)   <span class="cmt">// Scored above 80?</span>
+
+<span class="cmt">// >= greater-or-equal / <= less-or-equal</span>
+<span class="kw">if</span> (<span class="var-name">age</span> >= <span class="num">18</span>)   <span class="cmt">// 18 or older?</span>
+
+<span class="cmt">// && means AND — both must be true</span>
+<span class="kw">if</span> (<span class="var-name">age</span> >= <span class="num">18</span> && <span class="var-name">hasId</span> == <span class="kw">true</span>)
+
+<span class="cmt">// || means OR — at least one must be true</span>
+<span class="kw">if</span> (<span class="var-name">isStudent</span> || <span class="var-name">isSenior</span>)`
+        }
+      },
+      {
+        type: 'content',
+        heading: 'Repeating with Loops',
+        prose: 'What if you need to do something 100 times? You wouldn\'t write 100 lines of code! Java gives you <strong>loops</strong> — code that repeats automatically.',
+        code: {
+          filename: 'Loops.java',
+          html: `<span class="cmt">// FOR LOOP — use when you know how many times to repeat</span>
+<span class="kw">for</span> (<span class="type">int</span> <span class="var-name">i</span> = <span class="num">1</span>; <span class="var-name">i</span> <= <span class="num">5</span>; <span class="var-name">i</span>++) {
+    System.out.println(<span class="str">"Count: "</span> + <span class="var-name">i</span>);
+}
+<span class="cmt">// Prints: Count: 1, Count: 2, Count: 3, Count: 4, Count: 5</span>
+
+<span class="cmt">// WHILE LOOP — use when you don't know how many times</span>
+<span class="type">int</span> <span class="var-name">lives</span> = <span class="num">3</span>;
+<span class="kw">while</span> (<span class="var-name">lives</span> > <span class="num">0</span>) {
+    System.out.println(<span class="str">"Lives left: "</span> + <span class="var-name">lives</span>);
+    <span class="var-name">lives</span>--;  <span class="cmt">// subtract 1 each time</span>
+}
+<span class="cmt">// Prints 3, 2, 1 then stops</span>`
+        }
+      },
+      {
+        type: 'info',
+        boxes: [
+          { type: 'warning', icon: '⚠️', text: '<strong>Infinite Loop!</strong> If your loop condition never becomes false, your program will run forever and freeze. Always make sure something changes each iteration: <code style="color:#fbbf24">i++</code> or <code style="color:#fbbf24">lives--</code>' },
+          { type: 'tip', icon: '💡', text: '<strong>= vs ==</strong> This trips up <em>every</em> beginner! <code style="color:#38bdf8">x = 5</code> means "assign 5 to x". <code style="color:#38bdf8">x == 5</code> means "is x equal to 5?" Use == for comparisons inside if statements!' }
+        ]
+      },
+      {
+        type: 'quiz',
+        id: 'q3a',
+        question: 'What will this code print?\nint x = 10;\nif (x > 5) {\n  System.out.println("Big");\n} else {\n  System.out.println("Small");\n}',
+        options: ['Small', 'Big', 'Nothing', 'Error'],
+        correct: 1,
+        feedback: '✅ Correct! Since x = 10 and 10 > 5 is true, the first block runs and prints "Big".'
+      },
+      {
+        type: 'quiz',
+        id: 'q3b',
+        question: 'How many times will this loop print?\nfor (int i = 0; i < 3; i++) {\n  System.out.println("Hi");\n}',
+        options: ['2 times', '3 times', '4 times', '0 times'],
+        correct: 1,
+        feedback: '✅ Correct! i starts at 0, runs while i < 3 (i=0,1,2), so it prints "Hi" exactly 3 times.'
+      },
+      {
+        type: 'bughunt',
+        id: 'bh3',
+        title: '🐛 Bug Hunt — Condition Error',
+        description: 'This code should print "Pass" if score is 50 or more. Find the bug!',
+        lines: [
+          { code: 'int score = 75;', correct: false },
+          { code: 'if (score = 50) {', correct: true, hint: 'Using = (assignment) instead of >= (comparison). Should be: if (score >= 50)' },
+          { code: '    System.out.println("Pass");', correct: false },
+          { code: '} else {', correct: false },
+          { code: '    System.out.println("Fail");', correct: false },
+          { code: '}', correct: false }
+        ]
+      },
+      {
+        type: 'sorter',
+        id: 's3',
+        title: '🔀 Code Sorter — Build a Loop!',
+        description: 'Arrange these lines to print numbers 1 through 3.',
+        items: [
+          { id: 'a', code: 'for (int i = 1; i <= 3; i++) {', order: 0 },
+          { id: 'b', code: '}', order: 2 },
+          { id: 'c', code: '    System.out.println(i);', order: 1 },
+        ]
+      }
+    ]
+  },
+
+  // LESSON 4
+  {
+    title: 'Methods & Functions',
+    subtitle: 'Stop repeating yourself! Package code into reusable methods that you can call anywhere.',
+    color: '#4ade80',
+    icon: '🔧',
+    sections: [
+      {
+        type: 'content',
+        heading: 'What is a Method?',
+        prose: `A <strong>method</strong> is a named block of code that does a specific job. Instead of writing the same code over and over, you write it once in a method and <em>call it</em> whenever you need it.
+
+Methods help make code shorter, more organized, and easier to fix.`,
+        analogy: {
+          icon: '📱',
+          label: 'Real-World Analogy',
+          text: 'Think of methods like apps on your phone. The <strong>camera app</strong> is a method: you tap it (call it), it does its job (takes a photo), maybe it gives you something back (returns the photo). You don\'t know exactly how it works inside — you just use it!'
+        },
+        code: {
+          filename: 'Methods.java',
+          html: `<span class="kw">public class</span> <span class="cls">Greetings</span> {
+
+    <span class="cmt">// Defining a method called "greet"</span>
+    <span class="kw">static void</span> <span class="fn">greet</span>(<span class="type">String</span> <span class="var-name">name</span>) {
+        System.out.println(<span class="str">"Hello, "</span> + <span class="var-name">name</span> + <span class="str">"!"</span>);
+    }
+
+    <span class="kw">public static void</span> <span class="fn">main</span>(<span class="type">String</span>[] args) {
+        <span class="fn">greet</span>(<span class="str">"Alice"</span>);   <span class="cmt">// Calls method → Hello, Alice!</span>
+        <span class="fn">greet</span>(<span class="str">"Bob"</span>);     <span class="cmt">// Calls method → Hello, Bob!</span>
+        <span class="fn">greet</span>(<span class="str">"Charlie"</span>); <span class="cmt">// Calls method → Hello, Charlie!</span>
+    }
+
+}`
+        }
+      },
+      {
+        type: 'content',
+        heading: 'Methods that Return a Value',
+        prose: 'Some methods <strong>return</strong> a result. Instead of <code style="color:#38bdf8">void</code> (meaning "returns nothing"), you specify the type of value returned. Use the <code style="color:#38bdf8">return</code> keyword to send the result back.',
+        code: {
+          filename: 'Calculate.java',
+          html: `<span class="cmt">// This method takes two numbers and RETURNS their sum</span>
+<span class="kw">static</span> <span class="type">int</span> <span class="fn">add</span>(<span class="type">int</span> <span class="var-name">a</span>, <span class="type">int</span> <span class="var-name">b</span>) {
+    <span class="kw">return</span> <span class="var-name">a</span> + <span class="var-name">b</span>;
+}
+
+<span class="cmt">// This method checks if a number is even</span>
+<span class="kw">static</span> <span class="type">boolean</span> <span class="fn">isEven</span>(<span class="type">int</span> <span class="var-name">number</span>) {
+    <span class="kw">return</span> <span class="var-name">number</span> % <span class="num">2</span> == <span class="num">0</span>;
+}
+
+<span class="cmt">// Using the methods:</span>
+<span class="type">int</span> <span class="var-name">result</span> = <span class="fn">add</span>(<span class="num">3</span>, <span class="num">7</span>);        <span class="cmt">// result = 10</span>
+<span class="type">boolean</span> <span class="var-name">check</span> = <span class="fn">isEven</span>(<span class="num">4</span>);   <span class="cmt">// check = true</span>
+
+System.out.println(<span class="var-name">result</span>);  <span class="cmt">// Prints: 10</span>
+System.out.println(<span class="var-name">check</span>);   <span class="cmt">// Prints: true</span>`
+        }
+      },
+      {
+        type: 'concepts',
+        heading: 'Method Anatomy',
+        cards: [
+          { emoji: '🏷️', name: 'Return Type', desc: '"void" means nothing returned. "int", "String" etc. means it gives back a value.' },
+          { emoji: '📛', name: 'Method Name', desc: 'What you call the method. Use verbs: calculateTax, printName, isValid.' },
+          { emoji: '📥', name: 'Parameters', desc: 'Input values the method needs to do its job (in parentheses).' },
+          { emoji: '📤', name: 'return', desc: 'The keyword that sends a value back to whoever called the method.' }
+        ]
+      },
+      {
+        type: 'quiz',
+        id: 'q4a',
+        question: 'What keyword do you use to send a value back from a method?',
+        options: ['send', 'output', 'return', 'result'],
+        correct: 2,
+        feedback: '✅ Correct! The "return" keyword sends a value back to whoever called the method.'
+      },
+      {
+        type: 'quiz',
+        id: 'q4b',
+        question: 'A method declared as "static void greet()" will return:',
+        options: ['A String', 'An integer', 'true or false', 'Nothing at all'],
+        correct: 3,
+        feedback: '✅ Correct! "void" means the method performs an action but does NOT return any value.'
+      },
+      {
+        type: 'bughunt',
+        id: 'bh4',
+        title: '🐛 Bug Hunt — Missing Return',
+        description: 'This method is supposed to return the product of two numbers. Find the bug!',
+        lines: [
+          { code: 'static int multiply(int a, int b) {', correct: false },
+          { code: '    int result = a * b;', correct: false },
+          { code: '    System.out.println(result);', correct: true, hint: 'This method should return a value, not just print it. The line should be: return result;' },
+          { code: '}', correct: false }
+        ]
+      },
+      {
+        type: 'sorter',
+        id: 's4',
+        title: '🔀 Code Sorter — Build a Method',
+        description: 'Put these lines in order to create a method that returns the bigger of two numbers.',
+        items: [
+          { id: 'a', code: 'static int max(int x, int y) {', order: 0 },
+          { id: 'b', code: '    if (x > y) {', order: 1 },
+          { id: 'c', code: '        return x;', order: 2 },
+          { id: 'd', code: '    } else {', order: 3 },
+          { id: 'e', code: '        return y;', order: 4 },
+          { id: 'f', code: '    }', order: 5 },
+          { id: 'g', code: '}', order: 6 }
+        ]
+      }
+    ]
+  },
+
+  // LESSON 5
+  {
+    title: 'Arrays & Collections',
+    subtitle: 'Store multiple values in one place. Work with lists that grow and shrink.',
+    color: '#fbbf24',
+    icon: '📋',
+    sections: [
+      {
+        type: 'content',
+        heading: 'What is an Array?',
+        prose: `An <strong>array</strong> is like a row of numbered boxes, all holding the same type of data. Instead of creating 10 separate variables, you create one array with 10 spots.
+
+Each spot has an <em>index</em> number starting from <strong>0</strong> (not 1!). This is super important — Java counts from zero.`,
+        analogy: {
+          icon: '🏢',
+          label: 'Real-World Analogy',
+          text: 'Think of an array like a <strong>row of lockers</strong> in a school hallway. Each locker is numbered (0, 1, 2, 3...) and can store one item. You access a specific locker by its number: <code style="color:#fbbf24">locker[3]</code> = the 4th locker (remember: starts at 0!).'
+        },
+        code: {
+          filename: 'Arrays.java',
+          html: `<span class="cmt">// Creating an array of 5 integers</span>
+<span class="type">int</span>[] <span class="var-name">scores</span> = {<span class="num">85</span>, <span class="num">92</span>, <span class="num">78</span>, <span class="num">96</span>, <span class="num">88</span>};
+
+<span class="cmt">// Accessing elements (index starts at 0!)</span>
+System.out.println(<span class="var-name">scores</span>[<span class="num">0</span>]);   <span class="cmt">// Prints 85 (1st element)</span>
+System.out.println(<span class="var-name">scores</span>[<span class="num">2</span>]);   <span class="cmt">// Prints 78 (3rd element)</span>
+
+<span class="cmt">// Array length</span>
+System.out.println(<span class="var-name">scores</span>.length); <span class="cmt">// Prints 5</span>
+
+<span class="cmt">// Loop through ALL elements</span>
+<span class="kw">for</span> (<span class="type">int</span> <span class="var-name">i</span> = <span class="num">0</span>; <span class="var-name">i</span> < <span class="var-name">scores</span>.length; <span class="var-name">i</span>++) {
+    System.out.println(<span class="str">"Score "</span> + <span class="var-name">i</span> + <span class="str">": "</span> + <span class="var-name">scores</span>[<span class="var-name">i</span>]);
+}`
+        }
+      },
+      {
+        type: 'content',
+        heading: 'ArrayList — The Flexible List',
+        prose: 'Arrays have a fixed size — you can\'t add more items than declared. An <strong>ArrayList</strong> can grow and shrink automatically, making it much more flexible for real programs.',
+        code: {
+          filename: 'ListExample.java',
+          html: `<span class="kw">import</span> java.util.ArrayList;  <span class="cmt">// Must import first!</span>
+
+<span class="type">ArrayList</span>&lt;<span class="type">String</span>&gt; <span class="var-name">fruits</span> = <span class="kw">new</span> <span class="type">ArrayList</span>&lt;&gt;();
+
+<span class="var-name">fruits</span>.add(<span class="str">"Apple"</span>);    <span class="cmt">// Add items</span>
+<span class="var-name">fruits</span>.add(<span class="str">"Banana"</span>);
+<span class="var-name">fruits</span>.add(<span class="str">"Cherry"</span>);
+
+System.out.println(<span class="var-name">fruits</span>.get(<span class="num">0</span>));   <span class="cmt">// "Apple"</span>
+System.out.println(<span class="var-name">fruits</span>.size());    <span class="cmt">// 3</span>
+
+<span class="var-name">fruits</span>.remove(<span class="str">"Banana"</span>);             <span class="cmt">// Remove item</span>
+System.out.println(<span class="var-name">fruits</span>.size());    <span class="cmt">// Now 2</span>
+
+<span class="cmt">// For-each loop — cleaner way to iterate</span>
+<span class="kw">for</span> (<span class="type">String</span> <span class="var-name">fruit</span> : <span class="var-name">fruits</span>) {
+    System.out.println(<span class="var-name">fruit</span>);
+}`
+        }
+      },
+      {
+        type: 'info',
+        boxes: [
+          { type: 'warning', icon: '⚠️', text: '<strong>Index out of bounds!</strong> Trying to access an index that doesn\'t exist (e.g., element 10 in a 5-element array) causes an error called <code style="color:#f87171">ArrayIndexOutOfBoundsException</code>. Always check your array length!' },
+          { type: 'tip', icon: '💡', text: '<strong>Array vs ArrayList:</strong> Use a plain array when you know the size upfront. Use ArrayList when items will be added/removed during the program.' }
+        ]
+      },
+      {
+        type: 'quiz',
+        id: 'q5a',
+        question: 'Given: int[] nums = {10, 20, 30, 40};\nWhat does nums[2] return?',
+        options: ['10', '20', '30', '40'],
+        correct: 2,
+        feedback: '✅ Correct! Arrays start at index 0. So index 2 is the 3rd element: 30.'
+      },
+      {
+        type: 'quiz',
+        id: 'q5b',
+        question: 'Which method adds an element to an ArrayList?',
+        options: ['.push()', '.insert()', '.add()', '.append()'],
+        correct: 2,
+        feedback: '✅ Correct! ArrayList uses .add() to add elements, .get() to access, .remove() to delete, and .size() to get the count.'
+      },
+      {
+        type: 'bughunt',
+        id: 'bh5',
+        title: '🐛 Bug Hunt — Index Trouble',
+        description: 'This code has a bug. The developer wants to print the LAST element of the array.',
+        lines: [
+          { code: 'String[] colors = {"Red", "Green", "Blue"};', correct: false },
+          { code: 'int last = colors.length;', correct: true, hint: 'colors.length is 3, but the last index is 2 (length - 1). Should be: int last = colors.length - 1;' },
+          { code: 'System.out.println(colors[last]);', correct: false }
+        ]
+      }
+    ]
+  },
+
+  // LESSON 6
+  {
+    title: 'OOP Basics — Classes & Objects',
+    subtitle: 'The biggest idea in Java: modeling the real world with Objects and Classes.',
+    color: '#f43f5e',
+    icon: '🏗️',
+    sections: [
+      {
+        type: 'content',
+        heading: 'What is Object-Oriented Programming?',
+        prose: `Java is an <strong>Object-Oriented</strong> language. This means we model things in the real world as <em>objects</em> in code.
+
+Everything has two sides: <strong>attributes</strong> (what it IS) and <strong>behaviors</strong> (what it DOES). A class is the blueprint; objects are the real things created from it.`,
+        analogy: {
+          icon: '🚗',
+          label: 'Real-World Analogy',
+          text: 'A <strong>Class</strong> is like a car blueprint — it defines what every car has (4 wheels, engine, color) and can do (drive, brake, honk). An <strong>Object</strong> is a specific car built from that blueprint — your red Toyota Corolla. You can build many different cars from the same blueprint!'
+        }
+      },
+      {
+        type: 'content',
+        heading: 'Creating a Class',
+        prose: 'Let\'s create a <code style="color:#50fa7b">Dog</code> class with attributes (name, breed, age) and behaviors (bark, describe):',
+        code: {
+          filename: 'Dog.java',
+          html: `<span class="kw">public class</span> <span class="cls">Dog</span> {
+
+    <span class="cmt">// Attributes (also called "fields" or "instance variables")</span>
+    <span class="type">String</span> <span class="var-name">name</span>;
+    <span class="type">String</span> <span class="var-name">breed</span>;
+    <span class="type">int</span>    <span class="var-name">age</span>;
+
+    <span class="cmt">// Constructor — called when creating a new Dog</span>
+    <span class="cls">Dog</span>(<span class="type">String</span> <span class="var-name">name</span>, <span class="type">String</span> <span class="var-name">breed</span>, <span class="type">int</span> <span class="var-name">age</span>) {
+        <span class="kw">this</span>.name  = <span class="var-name">name</span>;
+        <span class="kw">this</span>.breed = <span class="var-name">breed</span>;
+        <span class="kw">this</span>.age   = <span class="var-name">age</span>;
+    }
+
+    <span class="cmt">// Behavior — a method</span>
+    <span class="kw">void</span> <span class="fn">bark</span>() {
+        System.out.println(<span class="kw">this</span>.name + <span class="str">" says: Woof!"</span>);
+    }
+
+    <span class="kw">void</span> <span class="fn">describe</span>() {
+        System.out.println(<span class="kw">this</span>.name + <span class="str">" is a "</span> + <span class="kw">this</span>.age + 
+                           <span class="str">"-year-old "</span> + <span class="kw">this</span>.breed);
+    }
+}`
+        }
+      },
+      {
+        type: 'content',
+        heading: 'Creating and Using Objects',
+        prose: 'Now we use the <code style="color:#ff79c6">new</code> keyword to create objects from our Dog blueprint:',
+        code: {
+          filename: 'Main.java',
+          html: `<span class="kw">public class</span> <span class="cls">Main</span> {
+    <span class="kw">public static void</span> <span class="fn">main</span>(<span class="type">String</span>[] args) {
+
+        <span class="cmt">// Create TWO different Dog objects from the same class</span>
+        <span class="cls">Dog</span> <span class="var-name">dog1</span> = <span class="kw">new</span> <span class="cls">Dog</span>(<span class="str">"Buddy"</span>, <span class="str">"Golden Retriever"</span>, <span class="num">3</span>);
+        <span class="cls">Dog</span> <span class="var-name">dog2</span> = <span class="kw">new</span> <span class="cls">Dog</span>(<span class="str">"Max"</span>, <span class="str">"Poodle"</span>, <span class="num">5</span>);
+
+        <span class="cmt">// Access attributes</span>
+        System.out.println(<span class="var-name">dog1</span>.name);    <span class="cmt">// Buddy</span>
+        System.out.println(<span class="var-name">dog2</span>.age);     <span class="cmt">// 5</span>
+
+        <span class="cmt">// Call methods (behaviors)</span>
+        <span class="var-name">dog1</span>.<span class="fn">bark</span>();       <span class="cmt">// Buddy says: Woof!</span>
+        <span class="var-name">dog2</span>.<span class="fn">describe</span>();  <span class="cmt">// Max is a 5-year-old Poodle</span>
+
+    }
+}`
+        }
+      },
+      {
+        type: 'concepts',
+        heading: 'OOP Core Concepts',
+        cards: [
+          { emoji: '📐', name: 'Class', desc: 'The blueprint/template. Defines attributes and behaviors.' },
+          { emoji: '🎯', name: 'Object', desc: 'A specific instance created from a class using "new".' },
+          { emoji: '🏗️', name: 'Constructor', desc: 'Special method that runs when an object is created.' },
+          { emoji: '🔑', name: 'this', desc: 'Refers to "this object" — distinguishes the object\'s own fields.' },
+          { emoji: '📦', name: 'Encapsulation', desc: 'Keeping data private inside a class, exposing only what\'s needed.' },
+          { emoji: '🧬', name: 'Inheritance', desc: 'A child class inheriting properties from a parent class.' }
+        ]
+      },
+      {
+        type: 'quiz',
+        id: 'q6a',
+        question: 'What is a Class in Java?',
+        options: ['A running instance of code', 'A blueprint for creating objects', 'A type of loop', 'A way to print text'],
+        correct: 1,
+        feedback: '✅ Correct! A Class is the blueprint or template. You use it to create objects with the "new" keyword.'
+      },
+      {
+        type: 'quiz',
+        id: 'q6b',
+        question: 'If "Car" is a class, which of these is an Object?',
+        options: ['Car design specifications', 'The Car class file', 'A specific red Toyota Corolla', 'The word "Car"'],
+        correct: 2,
+        feedback: '✅ Correct! Objects are specific instances. "A specific red Toyota Corolla" is an object created from the Car blueprint (class).'
+      },
+      {
+        type: 'bughunt',
+        id: 'bh6',
+        title: '🐛 Bug Hunt — Constructor Crash',
+        description: 'This code tries to create a Cat object but something is wrong. Find the bug!',
+        lines: [
+          { code: 'class Cat {', correct: false },
+          { code: '    String name;', correct: false },
+          { code: '    void Cat(String name) {', correct: true, hint: 'Constructors should NOT have a return type (not even void). Should be: Cat(String name) {' },
+          { code: '        this.name = name;', correct: false },
+          { code: '    }', correct: false },
+          { code: '}', correct: false }
+        ]
+      },
+      {
+        type: 'sorter',
+        id: 's6',
+        title: '🔀 Code Sorter — Build a Class!',
+        description: 'Arrange these lines to create a valid Person class with a name and an introduce() method.',
+        items: [
+          { id: 'a', code: 'class Person {', order: 0 },
+          { id: 'b', code: '    String name;', order: 1 },
+          { id: 'c', code: '    Person(String name) {', order: 2 },
+          { id: 'd', code: '        this.name = name;', order: 3 },
+          { id: 'e', code: '    }', order: 4 },
+          { id: 'f', code: '    void introduce() {', order: 5 },
+          { id: 'g', code: '        System.out.println("Hi, I am " + name);', order: 6 },
+          { id: 'h', code: '    }', order: 7 },
+          { id: 'i', code: '}', order: 8 }
+        ]
+      }
+    ]
+  }
+];
+
+// ===== RENDER LESSON =====
+function goLesson(idx) {
+  currentLesson = idx;
+  document.getElementById('welcome-screen').classList.add('hidden');
+  document.getElementById('lesson-container').classList.remove('hidden');
+  renderLesson(idx);
+  updateNavActive(idx);
+  document.getElementById('main').scrollTo(0,0);
+}
+
+function updateNavActive(idx) {
+  for(let i=0;i<6;i++){
+    const btn = document.getElementById('nav-'+i);
+    btn.classList.remove('active');
+    if(completedLessons.has(i)) btn.classList.add('completed');
+    else btn.classList.remove('completed');
+  }
+  document.getElementById('nav-'+idx).classList.add('active');
+}
+
+function renderLesson(idx) {
+  const lesson = LESSONS[idx];
+  const container = document.getElementById('lesson-container');
+  let html = '';
+
+  // Header
+  html += `<div class="lesson-header">
+    <div class="lesson-badge">✦ LESSON ${idx+1} OF 6</div>
+    <h1 class="lesson-main-title">${lesson.icon} <em>${lesson.title}</em></h1>
+    <p class="lesson-subtitle">${lesson.subtitle}</p>
+    <div class="lesson-meta">
+      <div class="meta-pill"><div class="meta-dot" style="background:${lesson.color}"></div> ~1.5 hrs</div>
+      <div class="meta-pill"><div class="meta-dot" style="background:#64748b"></div> Interactive Exercises</div>
+      <div class="meta-pill"><div class="meta-dot" style="background:#64748b"></div> Quizzes Included</div>
+    </div>
+  </div>`;
+
+  html += '<div class="lesson-content">';
+
+  // Sections
+  lesson.sections.forEach(sec => {
+    html += renderSection(sec, idx);
+  });
+
+  html += '</div>';
+
+  // Footer nav
+  const prevBtn = idx > 0 ? `<button class="btn btn-secondary" onclick="goLesson(${idx-1})">← Previous</button>` : '<div></div>';
+  const nextBtn = idx < 5
+    ? `<button class="btn btn-primary" onclick="completeAndNext(${idx})">Next Lesson →</button>`
+    : `<button class="btn btn-success" onclick="completeLesson(${idx})">🎓 Complete Course!</button>`;
+
+  html += `<div class="lesson-footer">${prevBtn}${nextBtn}</div>`;
+
+  container.innerHTML = html;
+  initInteractives(idx);
+}
+
+function renderSection(sec, lessonIdx) {
+  switch(sec.type) {
+    case 'content': return renderContent(sec);
+    case 'concepts': return renderConcepts(sec);
+    case 'quiz': return renderQuiz(sec, lessonIdx);
+    case 'bughunt': return renderBugHunt(sec, lessonIdx);
+    case 'sorter': return renderSorter(sec, lessonIdx);
+    case 'fillin': return renderFillIn(sec, lessonIdx);
+    case 'info': return renderInfoBoxes(sec);
+    case 'table': return renderTable(sec);
+    default: return '';
+  }
+}
+
+function renderContent(sec) {
+  let html = `<div class="section-block">`;
+  if(sec.heading) html += `<h2 class="section-heading">${sec.heading}</h2>`;
+  if(sec.prose) html += `<p class="prose">${sec.prose}</p>`;
+  if(sec.analogy) {
+    html += `<div class="analogy-card">
+      <div class="analogy-icon">${sec.analogy.icon}</div>
+      <div><div class="analogy-label">${sec.analogy.label}</div>
+      <div class="analogy-text">${sec.analogy.text}</div></div>
+    </div>`;
+  }
+  if(sec.code) {
+    html += `<div class="code-wrap">
+      <div class="code-header">
+        <div class="code-dots"><div class="code-dot r"></div><div class="code-dot y"></div><div class="code-dot g"></div></div>
+        <div class="code-filename">${sec.code.filename}</div>
+      </div>
+      <pre>${sec.code.html}</pre>
+    </div>`;
+  }
+  html += '</div>';
+  return html;
+}
+
+function renderConcepts(sec) {
+  let html = `<div class="section-block"><h2 class="section-heading">${sec.heading}</h2><div class="concept-grid">`;
+  sec.cards.forEach(c => {
+    html += `<div class="concept-card">
+      <div class="concept-emoji">${c.emoji}</div>
+      <div class="concept-name">${c.name}</div>
+      <div class="concept-desc">${c.desc}</div>
+    </div>`;
+  });
+  html += '</div></div>';
+  return html;
+}
+
+function renderQuiz(sec, lessonIdx) {
+  const letters = ['A','B','C','D'];
+  let opts = sec.options.map((o,i) => 
+    `<div class="quiz-option" id="opt-${sec.id}-${i}" onclick="answerQuiz('${sec.id}',${i},${sec.correct},'${lessonIdx}')">
+      <div class="option-letter">${letters[i]}</div>${o}
+    </div>`
+  ).join('');
+
+  return `<div class="section-block">
+    <div class="quiz-section">
+      <div class="quiz-header">
+        <div class="quiz-icon">❓</div>
+        <div><div class="quiz-title">Quick Quiz</div><div class="quiz-subtitle">Test your understanding</div></div>
+      </div>
+      <div class="quiz-question">${sec.question.replace(/\n/g,'<br><code style="display:block;margin:8px 0;padding:8px 12px;background:#0d1117;border-radius:6px;font-family:var(--font-mono);font-size:12px;color:#f8f8f2;white-space:pre;">')}</div>
+      <div class="quiz-options">${opts}</div>
+      <div class="quiz-feedback" id="qf-${sec.id}">${sec.feedback}</div>
+    </div>
+  </div>`;
+}
+
+function answerQuiz(id, chosen, correct, lessonIdx) {
+  if(quizAnswered[id]) return;
+  quizAnswered[id] = true;
+
+  const opts = document.querySelectorAll(`[id^="opt-${id}-"]`);
+  opts.forEach((el,i) => {
+    el.classList.add('disabled');
+    if(i === correct) el.classList.add('correct');
+    else if(i === chosen && chosen !== correct) el.classList.add('wrong');
+  });
+
+  const fb = document.getElementById(`qf-${id}`);
+  fb.classList.add('show', chosen === correct ? 'correct' : 'wrong');
+
+  if(chosen === correct) {
+    addXP(10, '✅ Correct answer! +10 XP');
+  } else {
+    fb.textContent = `❌ Not quite! The correct answer is: ${['A','B','C','D'][correct]}. ${LESSONS[lessonIdx]?.sections.find(s=>s.id===id)?.feedback || ''}`;
+    showToast('Keep trying — mistakes are how we learn!');
+  }
+}
+
+function renderBugHunt(sec, lessonIdx) {
+  let lines = sec.lines.map((l,i) => 
+    `<div class="code-line" id="bl-${sec.id}-${i}" onclick="pickBug('${sec.id}',${i},${l.correct},'${l.hint || 'No hint available'}')">
+      <div class="line-num">${i+1}</div>
+      <div class="line-code">${escapeHtml(l.code)}</div>
+    </div>`
+  ).join('');
+
+  return `<div class="section-block">
+    <div class="bug-hunt">
+      <div class="bug-hunt-header">🐛 <div class="bug-hunt-title">${sec.title}</div></div>
+      <div class="bug-hunt-body">
+        <p class="bug-prompt">${sec.description}</p>
+        <div class="code-wrap" style="margin-bottom:0">
+          <div class="code-header">
+            <div class="code-dots"><div class="code-dot r"></div><div class="code-dot y"></div><div class="code-dot g"></div></div>
+            <div class="code-filename">Find the bug.java</div>
+          </div>
+          <div style="padding:12px 8px">${lines}</div>
+        </div>
+        <div class="bug-actions">
+          <div id="bug-feedback-${sec.id}" style="font-size:13px;color:var(--muted);font-family:var(--font-mono)"></div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function pickBug(id, lineIdx, isCorrect, hint) {
+  if(bugAnswered[id]) return;
+  const line = document.getElementById(`bl-${id}-${lineIdx}`);
+  const fb = document.getElementById(`bug-feedback-${id}`);
+
+  if(isCorrect) {
+    bugAnswered[id] = true;
+    line.classList.add('correct-bug');
+    fb.style.color = 'var(--green)';
+    fb.textContent = `✅ Found it! ${hint}`;
+    addXP(15, '🐛 Bug found! +15 XP');
+    // Lock all
+    document.querySelectorAll(`[id^="bl-${id}-"]`).forEach(el => el.classList.add('locked'));
+  } else {
+    line.classList.add('wrong-pick');
+    fb.style.color = 'var(--red)';
+    fb.textContent = '❌ Not that line — keep looking!';
+    setTimeout(() => { line.classList.remove('wrong-pick'); fb.textContent = ''; }, 1500);
+  }
+}
+
+function renderFillIn(sec, lessonIdx) {
+  let linesHtml = sec.lines.map((l,i) => 
+    `<div>${l.before}<input type="text" class="fill-blank" id="fb-${sec.id}-${i}" data-answer="${l.answer}" placeholder="???" oninput="checkFillBlank('${sec.id}',${i})">${l.after}</div>`
+  ).join('\n');
+
+  return `<div class="section-block">
+    <div class="fill-exercise">
+      <div class="fill-header">✏️ Fill in the Blanks</div>
+      <div class="fill-body">
+        <p class="fill-description">${sec.description}</p>
+        <div class="fill-code">${linesHtml}</div>
+        <button class="btn btn-secondary" onclick="checkAllBlanks('${sec.id}',${sec.lines.length})">Check Answers</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function checkFillBlank(id, i) {
+  const inp = document.getElementById(`fb-${id}-${i}`);
+  const ans = inp.dataset.answer.toLowerCase().trim();
+  const val = inp.value.toLowerCase().trim();
+  inp.classList.remove('correct','wrong');
+  if(val === ans) inp.classList.add('correct');
+}
+
+function checkAllBlanks(id, count) {
+  let allRight = true;
+  for(let i=0;i<count;i++){
+    const inp = document.getElementById(`fb-${id}-${i}`);
+    const ans = inp.dataset.answer.toLowerCase().trim();
+    const val = inp.value.toLowerCase().trim();
+    inp.classList.remove('correct','wrong');
+    if(val === ans) inp.classList.add('correct');
+    else { inp.classList.add('wrong'); allRight = false; }
+  }
+  if(allRight) addXP(20, '✏️ All blanks correct! +20 XP');
+  else showToast('Some blanks are incorrect — try again!');
+}
+
+function renderSorter(sec, lessonIdx) {
+  const shuffled = [...sec.items].sort(() => Math.random() - 0.5);
+  let items = shuffled.map((item,i) =>
+    `<div class="sort-item" id="si-${sec.id}-${item.id}" draggable="true" data-id="${item.id}" data-order="${item.order}"
+      ondragstart="dragStart(event,'${sec.id}')" ondragover="dragOver(event)" ondrop="dropItem(event,'${sec.id}')" ondragleave="dragLeave(event)">
+      <div class="drag-handle">⠿</div>
+      <div class="sort-num">${i+1}</div>
+      <div style="font-family:var(--font-mono);font-size:13px;flex:1">${escapeHtml(item.code)}</div>
+    </div>`
+  ).join('');
+
+  return `<div class="section-block">
+    <div class="sorter-game">
+      <div class="sorter-header">🔀 ${sec.title}</div>
+      <div class="sorter-body">
+        <p class="sorter-description">${sec.description}</p>
+        <div class="sortable-list" id="sl-${sec.id}">${items}</div>
+        <div style="display:flex;gap:8px;margin-top:14px">
+          <button class="btn btn-primary" onclick="checkSorter('${sec.id}',${JSON.stringify(sec.items).replace(/'/g,'&#39;')})">Check Order</button>
+          <button class="btn btn-ghost" onclick="resetSorter('${sec.id}')">Reset</button>
+          <div id="sort-feedback-${sec.id}" style="font-size:13px;font-family:var(--font-mono);color:var(--muted);margin-left:auto;align-self:center"></div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+let dragSrc = null;
+function dragStart(e, sorterId) {
+  dragSrc = e.currentTarget;
+  e.currentTarget.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+function dragOver(e) {
+  e.preventDefault();
+  e.currentTarget.classList.add('drag-over');
+  e.dataTransfer.dropEffect = 'move';
+}
+function dragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
+function dropItem(e, sorterId) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  if(dragSrc && dragSrc !== e.currentTarget) {
+    const list = document.getElementById('sl-'+sorterId);
+    const items = [...list.querySelectorAll('.sort-item')];
+    const srcIdx = items.indexOf(dragSrc);
+    const dstIdx = items.indexOf(e.currentTarget);
+    if(srcIdx < dstIdx) list.insertBefore(dragSrc, e.currentTarget.nextSibling);
+    else list.insertBefore(dragSrc, e.currentTarget);
+    updateSortNums(sorterId);
+  }
+  if(dragSrc) dragSrc.classList.remove('dragging');
+  dragSrc = null;
+}
+function updateSortNums(sorterId) {
+  const items = document.querySelectorAll(`#sl-${sorterId} .sort-item`);
+  items.forEach((item,i) => {
+    item.querySelector('.sort-num').textContent = i+1;
+  });
+}
+function checkSorter(id, correctItems) {
+  const list = document.getElementById('sl-'+id);
+  const items = [...list.querySelectorAll('.sort-item')];
+  let allCorrect = true;
+  items.forEach((el,i) => {
+    el.classList.remove('correct-pos','wrong-pos');
+    const itemId = el.dataset.id;
+    const correctOrder = correctItems.find(x=>x.id===itemId)?.order;
+    if(correctOrder === i) el.classList.add('correct-pos');
+    else { el.classList.add('wrong-pos'); allCorrect = false; }
+  });
+  const fb = document.getElementById(`sort-feedback-${id}`);
+  if(allCorrect) {
+    fb.style.color = 'var(--green)';
+    fb.textContent = '✅ Perfect order!';
+    addXP(20, '🔀 Code sorted correctly! +20 XP');
+  } else {
+    fb.style.color = 'var(--red)';
+    fb.textContent = '❌ Some lines are out of order';
+  }
+}
+function resetSorter(id) {
+  const list = document.getElementById('sl-'+id);
+  const items = [...list.querySelectorAll('.sort-item')];
+  items.sort(() => Math.random()-0.5).forEach(el => {
+    el.classList.remove('correct-pos','wrong-pos');
+    list.appendChild(el);
+  });
+  updateSortNums(id);
+  const fb = document.getElementById(`sort-feedback-${id}`);
+  if(fb) { fb.textContent = ''; }
+}
+
+function renderInfoBoxes(sec) {
+  let html = '<div class="section-block">';
+  sec.boxes.forEach(b => {
+    html += `<div class="info-box ${b.type}"><div class="info-icon">${b.icon}</div><div>${b.text}</div></div>`;
+  });
+  html += '</div>';
+  return html;
+}
+
+function renderTable(sec) {
+  let html = `<div class="section-block"><h2 class="section-heading">${sec.heading}</h2>
+    <table class="data-table"><thead><tr>`;
+  sec.headers.forEach(h => html += `<th>${h}</th>`);
+  html += '</tr></thead><tbody>';
+  sec.rows.forEach(row => {
+    html += '<tr>';
+    row.forEach(cell => html += `<td>${cell}</td>`);
+    html += '</tr>';
+  });
+  html += '</tbody></table></div>';
+  return html;
+}
+
+function initInteractives(idx) {
+  // Nothing extra needed — all inline
+}
+
+function completeAndNext(idx) {
+  completedLessons.add(idx);
+  updateNavActive(idx);
+  updateProgress();
+  addXP(50, `🎉 Lesson ${idx+1} complete! +50 XP`);
+  goLesson(idx+1);
+}
+
+function completeLesson(idx) {
+  completedLessons.add(idx);
+  updateProgress();
+  addXP(100, '🎓 Course Complete! +100 XP');
+  const container = document.getElementById('lesson-container');
+  container.innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;text-align:center;padding:40px">
+      <div style="font-size:80px;margin-bottom:24px">🎓</div>
+      <h1 style="font-family:var(--font-head);font-size:48px;font-weight:800;margin-bottom:16px;letter-spacing:-2px">
+        You Did It!
+      </h1>
+      <p style="color:var(--muted);font-size:18px;max-width:480px;margin:0 auto 32px;line-height:1.7">
+        You've completed all 6 lessons of Java 101. You now know the foundations every Java developer needs!
+      </p>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:500px;margin:0 auto 40px">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center">
+          <div style="font-size:32px;margin-bottom:6px">☕</div>
+          <div style="font-family:var(--font-head);font-weight:700">6 Lessons</div>
+          <div style="color:var(--muted);font-size:12px">Completed</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--green);border-radius:12px;padding:20px;text-align:center">
+          <div style="font-size:32px;margin-bottom:6px">🏆</div>
+          <div style="font-family:var(--font-head);font-weight:700">${xp} XP</div>
+          <div style="color:var(--muted);font-size:12px">Earned</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center">
+          <div style="font-size:32px;margin-bottom:6px">🐛</div>
+          <div style="font-family:var(--font-head);font-weight:700">Bugs Found</div>
+          <div style="color:var(--muted);font-size:12px">Debugged</div>
+        </div>
+      </div>
+      <button class="btn btn-primary" style="font-size:16px;padding:14px 36px;border-radius:12px" onclick="goLesson(0)">📖 Review From Start</button>
+    </div>`;
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ===== INIT =====
+updateProgress();
+</script>
+</body>
+</html>
