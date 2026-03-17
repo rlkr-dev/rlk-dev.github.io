@@ -1,0 +1,2387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ConnecTech by YMCA Vietnam — SQL Course</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.js"></script>
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1f2d44;
+    --accent: #00d4ff;
+    --accent2: #ff6b35;
+    --accent3: #7c3aed;
+    --green: #10b981;
+    --red: #ef4444;
+    --yellow: #f59e0b;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --mono: 'Space Mono', monospace;
+    --sans: 'Sora', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, #0a0e1a 0%, #0d1b2a 50%, #0a1628 100%);
+    padding: 60px 40px 80px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -100px; left: 50%;
+    transform: translateX(-50%);
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(0,212,255,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-block;
+    background: rgba(0,212,255,0.1);
+    border: 1px solid rgba(0,212,255,0.3);
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+  .hero h1 {
+    font-size: clamp(36px, 6vw, 72px);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, #ffffff 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero p {
+    font-size: 18px;
+    color: var(--muted);
+    max-width: 560px;
+    margin: 0 auto 40px;
+    line-height: 1.7;
+    font-weight: 300;
+  }
+  .progress-bar-wrap {
+    max-width: 500px;
+    margin: 0 auto;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .progress-bar-bg {
+    flex: 1;
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+    border-radius: 4px;
+    transition: width 0.6s ease;
+  }
+  .progress-label {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  /* LAYOUT */
+  .app-layout {
+    display: flex;
+    min-height: calc(100vh - 200px);
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 280px;
+    min-width: 280px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 28px 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  .sidebar-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 16px 24px 18px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .sidebar-title svg {
+    flex-shrink: 0;
+  }
+  .chapter-group { margin-bottom: 4px; }
+  .chapter-btn {
+    width: 100%;
+    background: none;
+    border: none;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px 24px;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    letter-spacing: 0.3px;
+    transition: all 0.2s;
+    opacity: 0.7;
+  }
+  .chapter-btn:hover { opacity: 1; background: var(--surface2); }
+  .chapter-btn.active { color: var(--accent); opacity: 1; background: rgba(0,212,255,0.05); border-left: 3px solid var(--accent); }
+  .chapter-num {
+    width: 22px; height: 22px;
+    background: var(--border);
+    border-radius: 50%;
+    font-family: var(--mono);
+    font-size: 10px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+  .chapter-btn.active .chapter-num, .chapter-btn.completed .chapter-num {
+    background: var(--accent);
+    color: var(--bg);
+  }
+  .chapter-btn.completed { opacity: 0.6; }
+  .chapter-btn.completed .chapter-num::after { content: '✓'; }
+
+  /* MAIN CONTENT */
+  .main-content {
+    flex: 1;
+    padding: 48px 56px;
+    max-width: 900px;
+    overflow-y: auto;
+  }
+
+  .chapter-header {
+    margin-bottom: 40px;
+  }
+  .chapter-tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 12px;
+  }
+  .chapter-header h2 {
+    font-size: 42px;
+    font-weight: 800;
+    line-height: 1.15;
+    margin-bottom: 16px;
+  }
+  .chapter-header .lead {
+    font-size: 17px;
+    color: var(--muted);
+    line-height: 1.8;
+    max-width: 680px;
+    font-weight: 300;
+  }
+
+  /* CONTENT BLOCKS */
+  .concept-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 32px;
+    margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .concept-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px; height: 100%;
+    background: linear-gradient(180deg, var(--accent), var(--accent3));
+  }
+  .concept-card h3 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    color: var(--accent);
+    padding-left: 0;
+  }
+  .concept-card p, .concept-card li {
+    font-size: 15px;
+    line-height: 1.8;
+    color: #94a3b8;
+    margin-bottom: 10px;
+  }
+  .concept-card ul { padding-left: 20px; }
+  .concept-card strong { color: var(--text); }
+
+  .analogy-box {
+    background: linear-gradient(135deg, rgba(124,58,237,0.08), rgba(0,212,255,0.05));
+    border: 1px solid rgba(124,58,237,0.25);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 28px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .analogy-icon { font-size: 28px; flex-shrink: 0; }
+  .analogy-text { font-size: 15px; line-height: 1.75; color: #94a3b8; }
+  .analogy-text strong { color: #c4b5fd; }
+
+  /* CODE BLOCKS */
+  .code-block {
+    background: #060d1a;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 28px;
+    overflow: hidden;
+  }
+  .code-header {
+    background: var(--surface2);
+    padding: 10px 18px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+  }
+  .code-header .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+  .dot-r { background: #ef4444; }
+  .dot-y { background: #f59e0b; }
+  .dot-g { background: #10b981; }
+  pre {
+    padding: 20px 24px;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.9;
+    color: #e2e8f0;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .kw { color: #7c3aed; font-weight: 700; }
+  .fn { color: #00d4ff; }
+  .str { color: #10b981; }
+  .num { color: #f59e0b; }
+  .cm { color: #475569; font-style: italic; }
+  .tbl { color: #ff6b35; }
+
+  /* QUIZ */
+  .quiz-section {
+    background: var(--surface);
+    border: 1px solid rgba(255,107,53,0.2);
+    border-radius: 16px;
+    padding: 32px;
+    margin: 40px 0;
+  }
+  .quiz-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .quiz-icon { font-size: 24px; }
+  .quiz-title { font-size: 20px; font-weight: 700; color: var(--accent2); }
+  .quiz-question {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    line-height: 1.6;
+  }
+  .quiz-options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+  .quiz-option {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1.5;
+    transition: all 0.2s;
+    text-align: left;
+    color: var(--text);
+    font-family: var(--sans);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .quiz-option:hover { border-color: var(--accent); background: rgba(0,212,255,0.04); }
+  .quiz-option.correct { border-color: var(--green); background: rgba(16,185,129,0.1); color: #6ee7b7; }
+  .quiz-option.wrong { border-color: var(--red); background: rgba(239,68,68,0.08); color: #fca5a5; }
+  .quiz-option.disabled { cursor: default; }
+  .option-badge {
+    width: 24px; height: 24px;
+    background: var(--border);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+  .quiz-feedback {
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1.6;
+    display: none;
+    margin-top: 8px;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.success { background: rgba(16,185,129,0.1); border: 1px solid var(--green); color: #6ee7b7; }
+  .quiz-feedback.error { background: rgba(239,68,68,0.08); border: 1px solid var(--red); color: #fca5a5; }
+  .quiz-nav { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+  .btn {
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+  .btn-primary { background: var(--accent); color: var(--bg); }
+  .btn-primary:hover { filter: brightness(1.15); }
+  .btn-secondary { background: var(--surface2); border: 1px solid var(--border); color: var(--text); }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* PLAYGROUND */
+  .playground {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    margin: 40px 0;
+    overflow: hidden;
+  }
+  .playground-header {
+    background: var(--surface2);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .playground-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 15px;
+  }
+  .playground-title span { font-size: 20px; }
+  .db-tabs { display: flex; gap: 6px; }
+  .db-tab {
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-family: var(--mono);
+    font-size: 11px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    background: transparent;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+  .db-tab.active { background: rgba(0,212,255,0.1); border-color: var(--accent); color: var(--accent); }
+  .playground-body { display: flex; }
+  .schema-panel {
+    width: 220px;
+    min-width: 220px;
+    border-right: 1px solid var(--border);
+    padding: 20px;
+    background: #080d18;
+  }
+  .schema-panel h4 {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+  .table-item {
+    margin-bottom: 16px;
+  }
+  .table-name {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent2);
+    font-weight: 700;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .table-name::before { content: '▶'; font-size: 9px; }
+  .col-item {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    padding: 2px 0 2px 14px;
+    display: flex;
+    gap: 6px;
+  }
+  .col-pk { color: var(--yellow); font-weight: 700; }
+  .col-type { color: #475569; }
+  .editor-panel { flex: 1; display: flex; flex-direction: column; min-height: 400px; }
+  .query-tabs { display: flex; border-bottom: 1px solid var(--border); background: #0a0f1c; }
+  .query-tab {
+    padding: 10px 20px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .query-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  textarea.sql-editor {
+    flex: 1;
+    background: #080d18;
+    border: none;
+    color: #e2e8f0;
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 20px 24px;
+    resize: none;
+    outline: none;
+    min-height: 160px;
+    line-height: 1.9;
+    width: 100%;
+  }
+  .editor-toolbar {
+    background: var(--surface2);
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .run-btn {
+    background: linear-gradient(135deg, var(--green), #059669);
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+  }
+  .run-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+  .hint-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--yellow);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-family: var(--mono);
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .hint-btn:hover { border-color: var(--yellow); background: rgba(245,158,11,0.05); }
+  .clear-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-family: var(--mono);
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-left: auto;
+  }
+  .clear-btn:hover { border-color: var(--red); color: var(--red); }
+  .results-panel {
+    border-top: 1px solid var(--border);
+    background: #060d1a;
+    min-height: 120px;
+    max-height: 280px;
+    overflow: auto;
+  }
+  .results-header {
+    padding: 10px 20px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .result-count {
+    background: rgba(0,212,255,0.1);
+    border: 1px solid rgba(0,212,255,0.2);
+    color: var(--accent);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+  }
+  .results-table-wrap { overflow-x: auto; padding: 12px 0; }
+  table.results-tbl {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+  .results-tbl th {
+    background: var(--surface2);
+    padding: 8px 16px;
+    text-align: left;
+    color: var(--accent);
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .results-tbl td {
+    padding: 8px 16px;
+    border-bottom: 1px solid rgba(31,45,68,0.5);
+    color: #94a3b8;
+    white-space: nowrap;
+  }
+  .results-tbl tr:hover td { background: rgba(0,212,255,0.03); }
+  .result-error {
+    padding: 16px 20px;
+    color: #fca5a5;
+    font-family: var(--mono);
+    font-size: 12px;
+    background: rgba(239,68,68,0.06);
+    border-left: 3px solid var(--red);
+    margin: 12px;
+    border-radius: 6px;
+    line-height: 1.7;
+  }
+  .result-success {
+    padding: 16px 20px;
+    color: #6ee7b7;
+    font-family: var(--mono);
+    font-size: 12px;
+    background: rgba(16,185,129,0.06);
+    border-left: 3px solid var(--green);
+    margin: 12px;
+    border-radius: 6px;
+  }
+  .hint-panel {
+    background: rgba(245,158,11,0.05);
+    border: 1px solid rgba(245,158,11,0.2);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin: 0 16px 12px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: #fcd34d;
+    display: none;
+    line-height: 1.7;
+  }
+  .hint-panel.show { display: block; }
+
+  /* CHAPTER NAV */
+  .chapter-nav-btns {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 48px;
+    padding-top: 28px;
+    border-top: 1px solid var(--border);
+    gap: 16px;
+  }
+  .nav-btn {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 16px 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 180px;
+    text-align: left;
+    color: var(--text);
+    font-family: var(--sans);
+  }
+  .nav-btn:hover { border-color: var(--accent); background: rgba(0,212,255,0.04); }
+  .nav-btn-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  .nav-btn-title { font-size: 15px; font-weight: 600; }
+  .nav-btn.next { text-align: right; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--surface); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+  /* DIVIDER */
+  .section-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 40px 0;
+  }
+
+  /* JOIN DIAGRAM */
+  .join-diagram {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin: 24px 0;
+    padding: 24px;
+    background: var(--surface2);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .venn-circle {
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    line-height: 1.4;
+    flex-shrink: 0;
+  }
+  .venn-left { background: rgba(0,212,255,0.15); border: 2px solid var(--accent); color: var(--accent); margin-right: -30px; }
+  .venn-right { background: rgba(255,107,53,0.15); border: 2px solid var(--accent2); color: var(--accent2); margin-left: -30px; }
+  .venn-label { font-family: var(--mono); font-size: 11px; color: var(--muted); text-align: center; }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .main-content { padding: 32px 24px; }
+    .playground-body { flex-direction: column; }
+    .schema-panel { width: 100%; }
+  }
+
+  .highlight-box {
+    background: linear-gradient(135deg, rgba(0,212,255,0.06), rgba(124,58,237,0.06));
+    border: 1px solid rgba(0,212,255,0.15);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+  }
+  .highlight-box h4 { color: var(--accent); font-size: 14px; margin-bottom: 10px; font-family: var(--mono); letter-spacing: 0.5px; }
+  .highlight-box p, .highlight-box li { font-size: 14px; color: #94a3b8; line-height: 1.75; }
+  .highlight-box ul { padding-left: 18px; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <!-- ConnecTech Constellation Logo -->
+  <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:28px;">
+    <!-- Option A Hub Icon — Constellation story -->
+    <svg width="68" height="68" viewBox="0 0 68 68" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
+      <!-- Dashed orbit ring — the ripple of impact spreading outward -->
+      <circle cx="34" cy="34" r="28" stroke="rgba(0,212,255,0.22)" stroke-width="1.2" fill="none" stroke-dasharray="3 5"/>
+      <!-- Secondary inner ring — closer pulse -->
+      <circle cx="34" cy="34" r="20" stroke="rgba(0,212,255,0.12)" stroke-width="0.8" fill="none" stroke-dasharray="2 4"/>
+
+      <!-- Spoke lines from centre to each outer node -->
+      <!-- Top -->
+      <line x1="34" y1="25" x2="34" y2="10" stroke="#00d4ff" stroke-width="1.8" stroke-linecap="round"/>
+      <!-- Right -->
+      <line x1="43" y1="34" x2="58" y2="34" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round"/>
+      <!-- Bottom -->
+      <line x1="34" y1="43" x2="34" y2="58" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-linecap="round"/>
+      <!-- Left -->
+      <line x1="25" y1="34" x2="10" y2="34" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" stroke-linecap="round"/>
+
+      <!-- Outer nodes — the students / community being reached -->
+      <!-- Top node: brightest — the student who has been empowered -->
+      <circle cx="34" cy="7"  r="5.5" fill="#0a0e1a"/>
+      <circle cx="34" cy="7"  r="5.5" stroke="#00d4ff" stroke-width="1.8"/>
+      <circle cx="34" cy="7"  r="2.5" fill="#00d4ff"/>
+      <!-- Right node: dimmer — still waiting -->
+      <circle cx="61" cy="34" r="4.5" fill="#0a0e1a"/>
+      <circle cx="61" cy="34" r="4.5" stroke="rgba(255,255,255,0.35)" stroke-width="1.5"/>
+      <circle cx="61" cy="34" r="2"   fill="rgba(255,255,255,0.25)"/>
+      <!-- Bottom node: dimmer -->
+      <circle cx="34" cy="61" r="4.5" fill="#0a0e1a"/>
+      <circle cx="34" cy="61" r="4.5" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+      <circle cx="34" cy="61" r="2"   fill="rgba(255,255,255,0.2)"/>
+      <!-- Left node: dimmest — furthest from opportunity -->
+      <circle cx="7"  cy="34" r="4"   fill="#0a0e1a"/>
+      <circle cx="7"  cy="34" r="4"   stroke="rgba(255,255,255,0.2)" stroke-width="1.2"/>
+      <circle cx="7"  cy="34" r="1.8" fill="rgba(255,255,255,0.15)"/>
+
+      <!-- Centre blazing hub — ConnecTech: the source of the light -->
+      <circle cx="34" cy="34" r="11" fill="#0a0e1a"/>
+      <circle cx="34" cy="34" r="11" stroke="#00d4ff" stroke-width="2.2"/>
+      <circle cx="34" cy="34" r="5.5" fill="#00d4ff"/>
+    </svg>
+
+    <!-- Wordmark -->
+    <div style="display:flex;flex-direction:column;gap:3px;text-align:left;">
+      <div style="font-family:'Sora',sans-serif;font-size:30px;font-weight:800;letter-spacing:-0.5px;line-height:1;color:#ffffff;">
+        Connec<span style="color:#00d4ff;">Tech</span>
+      </div>
+      <div style="font-family:'Space Mono',monospace;font-size:9px;font-weight:400;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,0.35);">
+        by YMCA Vietnam
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-badge">⚡ Interactive SQL Course</div>
+  <p>Equipping students with modern-day skills to thrive in the digital era — real examples, quizzes, and a live SQL playground. No experience required.</p>
+  <div class="progress-bar-wrap">
+    <span class="progress-label" id="progressText">0 / 6 chapters</span>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+    </div>
+    <span style="font-size:18px;">🎓</span>
+  </div>
+</div>
+
+<div class="app-layout">
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-title">
+      <!-- mini Option A hub icon -->
+      <svg width="22" height="22" viewBox="0 0 68 68" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="34" cy="34" r="28" stroke="rgba(0,212,255,0.2)" stroke-width="1.5" fill="none" stroke-dasharray="3 5"/>
+        <line x1="34" y1="25" x2="34" y2="10" stroke="#00d4ff" stroke-width="2" stroke-linecap="round"/>
+        <line x1="43" y1="34" x2="58" y2="34" stroke="rgba(255,255,255,0.28)" stroke-width="2" stroke-linecap="round"/>
+        <line x1="34" y1="43" x2="34" y2="58" stroke="rgba(255,255,255,0.28)" stroke-width="2" stroke-linecap="round"/>
+        <line x1="25" y1="34" x2="10" y2="34" stroke="rgba(255,255,255,0.18)" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="34" cy="7"  r="5.5" fill="#111827"/>
+        <circle cx="34" cy="7"  r="5.5" stroke="#00d4ff" stroke-width="2"/>
+        <circle cx="34" cy="7"  r="2.5" fill="#00d4ff"/>
+        <circle cx="61" cy="34" r="4.5" fill="#111827"/>
+        <circle cx="61" cy="34" r="4.5" stroke="rgba(255,255,255,0.3)" stroke-width="1.8"/>
+        <circle cx="34" cy="61" r="4.5" fill="#111827"/>
+        <circle cx="34" cy="61" r="4.5" stroke="rgba(255,255,255,0.25)" stroke-width="1.8"/>
+        <circle cx="7"  cy="34" r="4"   fill="#111827"/>
+        <circle cx="7"  cy="34" r="4"   stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>
+        <circle cx="34" cy="34" r="11" fill="#111827"/>
+        <circle cx="34" cy="34" r="11" stroke="#00d4ff" stroke-width="2.5"/>
+        <circle cx="34" cy="34" r="5.5" fill="#00d4ff"/>
+      </svg>
+      <span style="color:var(--text);font-size:11px;font-weight:700;letter-spacing:1px;font-family:var(--sans);">Connec<span style="color:var(--accent);">Tech</span><span style="display:block;font-size:8px;letter-spacing:1.5px;margin-top:1px;color:var(--muted);font-weight:400;">by YMCA Vietnam</span></span>
+    </div>
+    <div id="chapterNav"></div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main-content" id="mainContent">
+    <!-- Content rendered by JS -->
+  </main>
+</div>
+
+<script>
+// ─── COURSE DATA ───────────────────────────────────────────────────────────────
+
+const chapters = [
+  {
+    id: 0,
+    tag: "Chapter 1",
+    title: "What is a Database?",
+    lead: "Before writing a single line of SQL, let's understand what a database actually is — and why the world can't live without them.",
+    content: `
+      <div class="analogy-box">
+        <div class="analogy-icon">🗄️</div>
+        <div class="analogy-text">
+          <strong>Think of a database like a super-organised filing cabinet.</strong> Instead of papers in folders, 
+          you have data neatly stored in tables — like spreadsheets. The database software (called a DBMS) is 
+          the smart assistant that keeps everything organised, finds things instantly, and makes sure nothing gets lost.
+        </div>
+      </div>
+
+      <div class="concept-card">
+        <h3>What is a Database?</h3>
+        <p>A <strong>database</strong> is a structured collection of information stored electronically. 
+        Every time you check your bank balance, scroll social media, or book a flight — a database is working behind the scenes.</p>
+        <ul>
+          <li>Your Netflix account? Stored in a database.</li>
+          <li>Your bank transactions? Database.</li>
+          <li>Your Grab food order history? You guessed it — database.</li>
+        </ul>
+      </div>
+
+      <div class="concept-card">
+        <h3>Tables: The Building Blocks</h3>
+        <p>Data is stored in <strong>tables</strong> — think of each table like one sheet in an Excel workbook.</p>
+        <ul>
+          <li>Each <strong>column</strong> is a category (e.g., Name, Age, Email)</li>
+          <li>Each <strong>row</strong> is one record (e.g., one person's information)</li>
+          <li>Each <strong>cell</strong> holds one piece of data</li>
+        </ul>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header">
+          <span><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span></span>
+          <span>EXAMPLE TABLE: customers</span>
+        </div>
+        <pre>
+  | customer_id | name           | email                  | city        |
+  |-------------|----------------|------------------------|-------------|
+  | 1           | Alice Tan      | alice@email.com        | Singapore   |
+  | 2           | Bob Lim        | bob@email.com          | Kuala Lumpur|
+  | 3           | Carol Wong     | carol@email.com        | Singapore   |
+  | 4           | David Ng       | david@email.com        | Bangkok     |
+        </pre>
+      </div>
+
+      <div class="concept-card">
+        <h3>What is SQL?</h3>
+        <p><strong>SQL</strong> (Structured Query Language) is the language you use to talk to a database. 
+        It's pronounced "sequel" or "S-Q-L" — both are fine!</p>
+        <p>SQL lets you:</p>
+        <ul>
+          <li><strong>Ask questions</strong> — "Show me all customers from Singapore"</li>
+          <li><strong>Add new data</strong> — "Add this new customer"</li>
+          <li><strong>Update data</strong> — "Change Alice's email"</li>
+          <li><strong>Delete data</strong> — "Remove this old record"</li>
+        </ul>
+      </div>
+
+      <div class="highlight-box">
+        <h4>💡 KEY TERMS TO REMEMBER</h4>
+        <ul>
+          <li><strong>Database</strong> — The entire organised collection of data</li>
+          <li><strong>Table</strong> — A grid of rows and columns (like a spreadsheet tab)</li>
+          <li><strong>Row / Record</strong> — One entry in a table (one person, one order, etc.)</li>
+          <li><strong>Column / Field</strong> — A category of data (name, age, price, etc.)</li>
+          <li><strong>Primary Key</strong> — A unique ID for each row (like a passport number)</li>
+          <li><strong>SQL</strong> — The language we use to interact with the database</li>
+        </ul>
+      </div>
+    `,
+    quiz: {
+      questions: [
+        {
+          q: "What is the best analogy for a database?",
+          options: ["A calculator", "A super-organised filing cabinet", "A web browser", "A printer"],
+          correct: 1,
+          explanation: "A database is like a super-organised filing cabinet — it stores data in a structured way so you can find, update, and manage it easily."
+        },
+        {
+          q: "In a database table, what does each ROW represent?",
+          options: ["A category of data (like 'Name' or 'Age')", "The entire database", "One individual record or entry", "A data type"],
+          correct: 2,
+          explanation: "Each row is one complete record — for example, one customer's full information. Columns are the categories (Name, Age, Email)."
+        },
+        {
+          q: "What does SQL stand for?",
+          options: ["Simple Query Language", "Structured Query Language", "Standard Question Language", "System Query Logic"],
+          correct: 1,
+          explanation: "SQL stands for Structured Query Language. It's the universal language for communicating with relational databases."
+        }
+      ]
+    },
+    playground: {
+      hint: "Try: SELECT * FROM customers; — This gets ALL rows from the customers table.",
+      defaultQuery: "-- Welcome! Let's explore our database.\n-- The * means 'give me all columns'\nSELECT * FROM customers;"
+    }
+  },
+
+  {
+    id: 1,
+    tag: "Chapter 2",
+    title: "SELECT — Reading Data",
+    lead: "The most important SQL command you'll ever learn. SELECT lets you ask the database questions and get answers back instantly.",
+    content: `
+      <div class="analogy-box">
+        <div class="analogy-icon">🔍</div>
+        <div class="analogy-text">
+          <strong>SELECT is like using a search engine on your own data.</strong> 
+          Instead of typing into Google, you write a SQL question — and the database returns exactly what you asked for, 
+          even if there are millions of rows.
+        </div>
+      </div>
+
+      <div class="concept-card">
+        <h3>Basic SELECT Syntax</h3>
+        <p>The SELECT statement has a simple pattern. Read it almost like plain English:</p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span></span><span>SELECT — Basic Syntax</span></div>
+        <pre>
+  <span class="kw">SELECT</span>  column1, column2       <span class="cm">-- Which columns do you want?</span>
+  <span class="kw">FROM</span>    table_name           <span class="cm">-- From which table?</span>
+  <span class="kw">WHERE</span>   condition;           <span class="cm">-- Optional: filter the results</span>
+        </pre>
+      </div>
+
+      <div class="concept-card">
+        <h3>SELECT Examples — From Simple to Powerful</h3>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span></span><span>Real Examples</span></div>
+        <pre>
+  <span class="cm">-- Get EVERYTHING from a table (use * for all columns)</span>
+  <span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tbl">customers</span>;
+
+  <span class="cm">-- Get only specific columns</span>
+  <span class="kw">SELECT</span> name, city <span class="kw">FROM</span> <span class="tbl">customers</span>;
+
+  <span class="cm">-- Filter with WHERE — only Singapore customers</span>
+  <span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tbl">customers</span> <span class="kw">WHERE</span> city = <span class="str">'Singapore'</span>;
+
+  <span class="cm">-- Combine conditions with AND</span>
+  <span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tbl">orders</span>
+  <span class="kw">WHERE</span> amount > <span class="num">100</span> <span class="kw">AND</span> status = <span class="str">'completed'</span>;
+
+  <span class="cm">-- Sort results (ORDER BY)</span>
+  <span class="kw">SELECT</span> name, amount <span class="kw">FROM</span> <span class="tbl">orders</span>
+  <span class="kw">ORDER BY</span> amount <span class="kw">DESC</span>;   <span class="cm">-- DESC = highest first</span>
+
+  <span class="cm">-- Limit how many rows come back</span>
+  <span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tbl">products</span> <span class="kw">LIMIT</span> <span class="num">5</span>;
+        </pre>
+      </div>
+
+      <div class="highlight-box">
+        <h4>🔧 WHERE CLAUSE OPERATORS</h4>
+        <ul>
+          <li><strong>=</strong> &nbsp;&nbsp;&nbsp; Equal to &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; WHERE city = 'Singapore'</li>
+          <li><strong>!=</strong> or <strong>&lt;&gt;</strong> &nbsp; Not equal to &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; WHERE status != 'cancelled'</li>
+          <li><strong>&gt;, &lt;, &gt;=, &lt;=</strong> &nbsp; Comparisons &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; WHERE price > 50</li>
+          <li><strong>LIKE</strong> &nbsp;&nbsp;&nbsp;&nbsp; Pattern match &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; WHERE name LIKE 'A%' (starts with A)</li>
+          <li><strong>IN</strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Match a list &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; WHERE city IN ('Singapore', 'Bangkok')</li>
+          <li><strong>BETWEEN</strong> &nbsp; Range &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; WHERE price BETWEEN 10 AND 50</li>
+        </ul>
+      </div>
+    `,
+    quiz: {
+      questions: [
+        {
+          q: "Which symbol means 'give me ALL columns' in a SELECT statement?",
+          options: ["ALL", "%", "*", "#"],
+          correct: 2,
+          explanation: "The asterisk (*) is a wildcard that means 'select all columns'. So SELECT * FROM table gets every column."
+        },
+        {
+          q: "You want only customers from Bangkok. Which SQL is correct?",
+          options: [
+            "SELECT * FROM customers FILTER city = 'Bangkok'",
+            "SELECT * FROM customers WHERE city = 'Bangkok'",
+            "GET customers WHERE city IS Bangkok",
+            "FIND * IN customers CITY Bangkok"
+          ],
+          correct: 1,
+          explanation: "WHERE is the correct clause for filtering rows. The syntax is: SELECT * FROM table WHERE column = 'value'."
+        },
+        {
+          q: "How do you sort results from highest price to lowest?",
+          options: [
+            "SORT BY price DESCENDING",
+            "ORDER price DESC",
+            "ORDER BY price DESC",
+            "ARRANGE BY price HIGH"
+          ],
+          correct: 2,
+          explanation: "ORDER BY column DESC sorts results in descending order (highest first). ASC would be ascending (lowest first)."
+        }
+      ]
+    },
+    playground: {
+      hint: "Try: SELECT name, city FROM customers WHERE city = 'Singapore'; — Or try ORDER BY and LIMIT!",
+      defaultQuery: "-- Get customers from Singapore, sorted by name\nSELECT name, email, city\nFROM customers\nWHERE city = 'Singapore'\nORDER BY name ASC;"
+    }
+  },
+
+  {
+    id: 2,
+    tag: "Chapter 3",
+    title: "INSERT — Adding Data",
+    lead: "Your database starts empty. INSERT is how you add new records — one row at a time, or many at once.",
+    content: `
+      <div class="analogy-box">
+        <div class="analogy-icon">➕</div>
+        <div class="analogy-text">
+          <strong>INSERT is like filling out a form and submitting it.</strong> 
+          You specify which fields you're filling in, then provide the values. 
+          The database creates a new row with that information.
+        </div>
+      </div>
+
+      <div class="concept-card">
+        <h3>INSERT INTO Syntax</h3>
+        <p>There are two ways to write an INSERT. The <strong>explicit form</strong> (recommended) lists the columns you're filling, making your code clearer and safer.</p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span></span><span>INSERT — Two Forms</span></div>
+        <pre>
+  <span class="cm">-- FORM 1: Explicit columns (recommended — clearer and safer)</span>
+  <span class="kw">INSERT INTO</span> <span class="tbl">customers</span> (name, email, city)
+  <span class="kw">VALUES</span> (<span class="str">'Emma Chen'</span>, <span class="str">'emma@email.com'</span>, <span class="str">'Singapore'</span>);
+
+  <span class="cm">-- FORM 2: All columns (must match exact column order)</span>
+  <span class="kw">INSERT INTO</span> <span class="tbl">customers</span>
+  <span class="kw">VALUES</span> (<span class="num">5</span>, <span class="str">'Emma Chen'</span>, <span class="str">'emma@email.com'</span>, <span class="str">'Singapore'</span>);
+
+  <span class="cm">-- Insert MULTIPLE rows in one statement (efficient!)</span>
+  <span class="kw">INSERT INTO</span> <span class="tbl">customers</span> (name, email, city)
+  <span class="kw">VALUES</span>
+    (<span class="str">'Frank Ho'</span>,  <span class="str">'frank@email.com'</span>,  <span class="str">'Hong Kong'</span>),
+    (<span class="str">'Grace Liu'</span>, <span class="str">'grace@email.com'</span>,  <span class="str">'Shanghai'</span>),
+    (<span class="str">'Henry Park'</span>,<span class="str">'henry@email.com'</span>,  <span class="str">'Seoul'</span>);
+        </pre>
+      </div>
+
+      <div class="concept-card">
+        <h3>Important Rules for INSERT</h3>
+        <ul>
+          <li>Text values go in <strong>single quotes</strong>: 'Singapore' ✅ &nbsp;&nbsp; Singapore ❌</li>
+          <li>Numbers do NOT need quotes: 100 ✅ &nbsp;&nbsp; '100' ❌ (works but bad practice)</li>
+          <li>Primary keys are usually <strong>auto-generated</strong> — you don't need to provide them</li>
+          <li>Required fields (NOT NULL) must be provided — or you'll get an error</li>
+          <li>The number of columns must <strong>match</strong> the number of values</li>
+        </ul>
+      </div>
+
+      <div class="highlight-box">
+        <h4>🚨 COMMON MISTAKES</h4>
+        <ul>
+          <li>Missing quotes around text values</li>
+          <li>Column count doesn't match value count</li>
+          <li>Trying to insert a duplicate primary key</li>
+          <li>Leaving out required (NOT NULL) columns</li>
+        </ul>
+      </div>
+    `,
+    quiz: {
+      questions: [
+        {
+          q: "How should text values be written in an INSERT statement?",
+          options: ["Without any quotes: Singapore", "In double quotes: \"Singapore\"", "In single quotes: 'Singapore'", "In backticks: `Singapore`"],
+          correct: 2,
+          explanation: "Text (string) values in SQL must be wrapped in single quotes: 'Singapore', 'Alice', 'completed'. Double quotes have a different meaning in some databases."
+        },
+        {
+          q: "Can you insert multiple rows in a single INSERT statement?",
+          options: [
+            "No, you need one INSERT per row",
+            "Yes, separate each row's values with a comma",
+            "Only if the table is empty",
+            "Only with a special MULTI keyword"
+          ],
+          correct: 1,
+          explanation: "Yes! You can insert many rows at once: INSERT INTO table (col) VALUES ('row1'), ('row2'), ('row3'); — This is much more efficient than multiple separate INSERT statements."
+        },
+        {
+          q: "Which INSERT is written correctly?",
+          options: [
+            "INSERT customers VALUES ('Alice', alice@email.com, Singapore);",
+            "INSERT INTO customers (name) VALUES (Alice);",
+            "INSERT INTO customers (name, email) VALUES ('Alice', 'alice@email.com');",
+            "ADD INTO customers name='Alice', email='alice@email.com';"
+          ],
+          correct: 2,
+          explanation: "The correct form uses INSERT INTO, lists column names in parentheses, uses VALUES, and wraps text in single quotes."
+        }
+      ]
+    },
+    playground: {
+      hint: "Try: INSERT INTO customers (name, email, city) VALUES ('Your Name', 'you@email.com', 'Your City'); — Then SELECT * FROM customers; to see your new row!",
+      defaultQuery: "-- Add a new customer\nINSERT INTO customers (name, email, city)\nVALUES ('Emma Chen', 'emma@email.com', 'Hong Kong');\n\n-- Then check it was added!\nSELECT * FROM customers;"
+    }
+  },
+
+  {
+    id: 3,
+    tag: "Chapter 4",
+    title: "UPDATE & DELETE",
+    lead: "Data changes over time. UPDATE modifies existing records. DELETE removes them. Both are powerful — and must be used carefully!",
+    content: `
+      <div class="analogy-box">
+        <div class="analogy-icon">✏️</div>
+        <div class="analogy-text">
+          <strong>UPDATE is like using a pen to change something already written.</strong> 
+          DELETE is like ripping the page out entirely. 
+          <strong>Always double-check with a SELECT before you UPDATE or DELETE!</strong> 
+          There's no undo button in a live database.
+        </div>
+      </div>
+
+      <div class="concept-card">
+        <h3>UPDATE — Changing Existing Data</h3>
+        <p>UPDATE modifies data in existing rows. Always use a <strong>WHERE clause</strong> — without it, you'll change EVERY row in the table!</p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span></span><span>UPDATE Examples</span></div>
+        <pre>
+  <span class="cm">-- Change one customer's city</span>
+  <span class="kw">UPDATE</span> <span class="tbl">customers</span>
+  <span class="kw">SET</span>    city = <span class="str">'Johor Bahru'</span>
+  <span class="kw">WHERE</span>  customer_id = <span class="num">2</span>;
+
+  <span class="cm">-- Update multiple columns at once</span>
+  <span class="kw">UPDATE</span> <span class="tbl">customers</span>
+  <span class="kw">SET</span>    email = <span class="str">'newemail@email.com'</span>,
+         city  = <span class="str">'Singapore'</span>
+  <span class="kw">WHERE</span>  name = <span class="str">'Bob Lim'</span>;
+
+  <span class="cm">-- Update using math (e.g., give 10% discount)</span>
+  <span class="kw">UPDATE</span> <span class="tbl">products</span>
+  <span class="kw">SET</span>    price = price * <span class="num">0.9</span>
+  <span class="kw">WHERE</span>  category = <span class="str">'Electronics'</span>;
+
+  <span class="cm">-- ⚠️ DANGER: This updates EVERY row! No WHERE clause!</span>
+  <span class="cm">-- UPDATE customers SET city = 'Unknown';  &lt;-- DON'T DO THIS!</span>
+        </pre>
+      </div>
+
+      <div class="concept-card">
+        <h3>DELETE — Removing Records</h3>
+        <p>DELETE removes entire rows. Like UPDATE, always use WHERE — a DELETE without it wipes your entire table!</p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span></span><span>DELETE Examples</span></div>
+        <pre>
+  <span class="cm">-- Delete a specific customer</span>
+  <span class="kw">DELETE FROM</span> <span class="tbl">customers</span>
+  <span class="kw">WHERE</span> customer_id = <span class="num">4</span>;
+
+  <span class="cm">-- Delete old/cancelled orders</span>
+  <span class="kw">DELETE FROM</span> <span class="tbl">orders</span>
+  <span class="kw">WHERE</span> status = <span class="str">'cancelled'</span>;
+
+  <span class="cm">-- Safe pattern: SELECT first to preview what you'll delete</span>
+  <span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tbl">customers</span> <span class="kw">WHERE</span> customer_id = <span class="num">4</span>;
+  <span class="cm">-- Only if you're happy with the results, run the DELETE:</span>
+  <span class="kw">DELETE FROM</span> <span class="tbl">customers</span> <span class="kw">WHERE</span> customer_id = <span class="num">4</span>;
+        </pre>
+      </div>
+
+      <div class="highlight-box">
+        <h4>🛡️ THE GOLDEN RULE OF UPDATE & DELETE</h4>
+        <ul>
+          <li><strong>Step 1:</strong> Write your WHERE condition</li>
+          <li><strong>Step 2:</strong> Run a SELECT with that same WHERE first</li>
+          <li><strong>Step 3:</strong> Verify those are exactly the rows you want to change</li>
+          <li><strong>Step 4:</strong> Then run your UPDATE or DELETE</li>
+          <li>In production systems, always backup data before mass updates!</li>
+        </ul>
+      </div>
+    `,
+    quiz: {
+      questions: [
+        {
+          q: "What happens if you run UPDATE customers SET city = 'Unknown' WITHOUT a WHERE clause?",
+          options: [
+            "Nothing — SQL requires a WHERE clause",
+            "It updates only the first row",
+            "It updates EVERY row in the customers table",
+            "It shows an error message"
+          ],
+          correct: 2,
+          explanation: "Without a WHERE clause, UPDATE affects EVERY row in the table. This is why the WHERE clause is essential — always double-check before running an UPDATE."
+        },
+        {
+          q: "What's the safest approach before running a DELETE?",
+          options: [
+            "Just run the DELETE — databases auto-backup",
+            "Run a SELECT with the same WHERE clause first to preview the rows",
+            "Use DELETE PREVIEW syntax",
+            "Always delete all rows and re-insert"
+          ],
+          correct: 1,
+          explanation: "Always preview with SELECT first! Run SELECT * FROM table WHERE your_condition; — verify those are the right rows — then run the DELETE with the same condition."
+        },
+        {
+          q: "Which SQL correctly updates the email for customer with id = 3?",
+          options: [
+            "CHANGE customers SET email = 'new@email.com' WHERE customer_id = 3;",
+            "UPDATE customers email = 'new@email.com' WHERE customer_id = 3;",
+            "UPDATE customers SET email = 'new@email.com' WHERE customer_id = 3;",
+            "MODIFY customers (email) = 'new@email.com' AT customer_id = 3;"
+          ],
+          correct: 2,
+          explanation: "The correct syntax is UPDATE table SET column = value WHERE condition; — The SET keyword specifies what to change, WHERE limits which rows."
+        }
+      ]
+    },
+    playground: {
+      hint: "Try updating a customer's city, then SELECT to verify the change worked! Remember to use a WHERE clause.",
+      defaultQuery: "-- First, see what we have\nSELECT * FROM customers;\n\n-- Update Bob's city\nUPDATE customers\nSET city = 'Kuala Lumpur'\nWHERE name = 'Bob Lim';\n\n-- Verify the change\nSELECT * FROM customers WHERE name = 'Bob Lim';"
+    }
+  },
+
+  {
+    id: 4,
+    tag: "Chapter 5",
+    title: "JOINs — Connecting Tables",
+    lead: "The real power of databases comes from connecting multiple tables together. JOINs let you combine data from different tables in a single query.",
+    content: `
+      <div class="analogy-box">
+        <div class="analogy-icon">🧩</div>
+        <div class="analogy-text">
+          <strong>Imagine customers and their orders are in separate drawers.</strong> 
+          A JOIN is like laying both sheets side-by-side and matching customers to their orders 
+          using the customer ID — like matching puzzle pieces. The <strong>Foreign Key</strong> 
+          is the shared piece that connects the two tables.
+        </div>
+      </div>
+
+      <div class="concept-card">
+        <h3>Why Separate Tables?</h3>
+        <p>Good databases split information across multiple tables to avoid repeating data. 
+        Instead of writing "Alice Tan, Singapore" on every order, we store Alice once in the 
+        <strong>customers</strong> table, and reference her ID in the <strong>orders</strong> table.</p>
+        <p>This is called <strong>normalisation</strong> — and it's why we need JOINs to combine that data back together when we need it.</p>
+      </div>
+
+      <div class="concept-card">
+        <h3>Types of JOIN</h3>
+      </div>
+
+      <div class="join-diagram">
+        <div style="text-align:center">
+          <div style="display:flex;align-items:center;justify-content:center;margin-bottom:16px">
+            <div class="venn-circle venn-left">customers<br>table</div>
+            <div class="venn-circle venn-right">orders<br>table</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:12px">
+            <div style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.2);border-radius:8px;padding:10px">
+              <div style="color:var(--accent);font-weight:700;font-family:var(--mono);margin-bottom:4px">INNER JOIN</div>
+              <div style="color:#94a3b8">Only matching rows from both tables</div>
+            </div>
+            <div style="background:rgba(255,107,53,0.1);border:1px solid rgba(255,107,53,0.2);border-radius:8px;padding:10px">
+              <div style="color:var(--accent2);font-weight:700;font-family:var(--mono);margin-bottom:4px">LEFT JOIN</div>
+              <div style="color:#94a3b8">All from left + matching from right</div>
+            </div>
+            <div style="background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.2);border-radius:8px;padding:10px">
+              <div style="color:#a78bfa;font-weight:700;font-family:var(--mono);margin-bottom:4px">RIGHT JOIN</div>
+              <div style="color:#94a3b8">All from right + matching from left</div>
+            </div>
+            <div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);border-radius:8px;padding:10px">
+              <div style="color:var(--green);font-weight:700;font-family:var(--mono);margin-bottom:4px">FULL JOIN</div>
+              <div style="color:#94a3b8">Everything from both tables</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span></span><span>JOIN Examples</span></div>
+        <pre>
+  <span class="cm">-- INNER JOIN: Customers who have orders (only matches)</span>
+  <span class="kw">SELECT</span> c.name, c.city, o.amount, o.status
+  <span class="kw">FROM</span>       <span class="tbl">customers</span> c
+  <span class="kw">INNER JOIN</span> <span class="tbl">orders</span>    o  <span class="kw">ON</span> c.customer_id = o.customer_id;
+
+  <span class="cm">-- LEFT JOIN: ALL customers, even those without any orders</span>
+  <span class="kw">SELECT</span> c.name, o.amount
+  <span class="kw">FROM</span>      <span class="tbl">customers</span> c
+  <span class="kw">LEFT JOIN</span> <span class="tbl">orders</span>    o  <span class="kw">ON</span> c.customer_id = o.customer_id;
+  <span class="cm">-- Customers with no orders will show NULL for o.amount</span>
+
+  <span class="cm">-- JOIN three tables: customers + orders + products</span>
+  <span class="kw">SELECT</span> c.name, p.product_name, o.amount
+  <span class="kw">FROM</span>       <span class="tbl">customers</span> c
+  <span class="kw">INNER JOIN</span> <span class="tbl">orders</span>    o  <span class="kw">ON</span> c.customer_id = o.customer_id
+  <span class="kw">INNER JOIN</span> <span class="tbl">products</span>  p  <span class="kw">ON</span> o.product_id  = p.product_id;
+        </pre>
+      </div>
+
+      <div class="highlight-box">
+        <h4>💡 TIPS FOR JOINS</h4>
+        <ul>
+          <li>Use <strong>table aliases</strong> (like c, o, p) to keep queries short and readable</li>
+          <li><strong>INNER JOIN</strong> is the most common — use it when you only want matching records</li>
+          <li><strong>LEFT JOIN</strong> is essential when some records might not have a match (e.g., customers with no orders)</li>
+          <li>The <strong>ON</strong> clause specifies how tables connect — usually by matching primary key to foreign key</li>
+          <li><strong>NULL</strong> appears in LEFT JOIN results where no match was found</li>
+        </ul>
+      </div>
+    `,
+    quiz: {
+      questions: [
+        {
+          q: "Which JOIN returns ONLY rows that have matches in BOTH tables?",
+          options: ["LEFT JOIN", "FULL JOIN", "INNER JOIN", "RIGHT JOIN"],
+          correct: 2,
+          explanation: "INNER JOIN returns only the rows where the ON condition matches in both tables. If a customer has no orders, they won't appear in an INNER JOIN result."
+        },
+        {
+          q: "You want all customers, even those who haven't placed an order yet. Which JOIN should you use?",
+          options: [
+            "INNER JOIN — it returns all customers",
+            "LEFT JOIN customers to orders — keeps all customers",
+            "DELETE JOIN — removes non-matching",
+            "OUTER ONLY JOIN"
+          ],
+          correct: 1,
+          explanation: "LEFT JOIN keeps ALL rows from the left table (customers) and adds matching data from the right (orders). Customers with no orders will show NULL for order columns."
+        },
+        {
+          q: "In a JOIN, what does the ON clause do?",
+          options: [
+            "Turns the JOIN feature on",
+            "Specifies which columns to display",
+            "Specifies how the two tables are related (the matching condition)",
+            "Sorts the results"
+          ],
+          correct: 2,
+          explanation: "ON specifies the relationship between tables — usually matching a primary key to a foreign key, like ON customers.customer_id = orders.customer_id."
+        }
+      ]
+    },
+    playground: {
+      hint: "Try: SELECT c.name, o.amount, o.status FROM customers c INNER JOIN orders o ON c.customer_id = o.customer_id; — See the customer names with their orders!",
+      defaultQuery: "-- Join customers and orders together\nSELECT \n  c.name AS customer_name,\n  c.city,\n  o.amount,\n  o.status,\n  p.product_name\nFROM customers c\nINNER JOIN orders o ON c.customer_id = o.customer_id\nINNER JOIN products p ON o.product_id = p.product_id\nORDER BY o.amount DESC;"
+    }
+  },
+
+  {
+    id: 5,
+    tag: "Chapter 6",
+    title: "Aggregates & Grouping",
+    lead: "COUNT, SUM, AVG, MIN, MAX — these functions let you calculate totals, averages, and summaries across your data. Combined with GROUP BY, they're incredibly powerful.",
+    content: `
+      <div class="analogy-box">
+        <div class="analogy-icon">📊</div>
+        <div class="analogy-text">
+          <strong>Aggregate functions are like a calculator working on your whole table.</strong> 
+          Instead of reading every row one-by-one, you can instantly ask: 
+          "What's the total sales this month?" or "How many customers are in each city?" 
+          — and get the answer in milliseconds, even with millions of rows.
+        </div>
+      </div>
+
+      <div class="concept-card">
+        <h3>Aggregate Functions</h3>
+        <ul>
+          <li><strong>COUNT()</strong> — How many rows? e.g., How many customers?</li>
+          <li><strong>SUM()</strong> — Total of a number column. e.g., Total revenue</li>
+          <li><strong>AVG()</strong> — Average value. e.g., Average order size</li>
+          <li><strong>MIN()</strong> — Smallest value. e.g., Cheapest product</li>
+          <li><strong>MAX()</strong> — Largest value. e.g., Most expensive order</li>
+        </ul>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span></span><span>Aggregate Functions</span></div>
+        <pre>
+  <span class="cm">-- How many customers do we have?</span>
+  <span class="kw">SELECT</span> <span class="fn">COUNT</span>(*) <span class="kw">AS</span> total_customers <span class="kw">FROM</span> <span class="tbl">customers</span>;
+
+  <span class="cm">-- Total revenue from all orders</span>
+  <span class="kw">SELECT</span> <span class="fn">SUM</span>(amount) <span class="kw">AS</span> total_revenue <span class="kw">FROM</span> <span class="tbl">orders</span>;
+
+  <span class="cm">-- Average order amount</span>
+  <span class="kw">SELECT</span> <span class="fn">AVG</span>(amount) <span class="kw">AS</span> average_order <span class="kw">FROM</span> <span class="tbl">orders</span>;
+
+  <span class="cm">-- Most expensive and cheapest product</span>
+  <span class="kw">SELECT</span> <span class="fn">MAX</span>(price) <span class="kw">AS</span> most_expensive,
+         <span class="fn">MIN</span>(price) <span class="kw">AS</span> cheapest
+  <span class="kw">FROM</span> <span class="tbl">products</span>;
+        </pre>
+      </div>
+
+      <div class="concept-card">
+        <h3>GROUP BY — Aggregates Per Category</h3>
+        <p>GROUP BY is the real magic — it runs aggregate functions for each group separately. 
+        For example, instead of total orders across all cities, you get total orders <em>per city</em>.</p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span></span><span>GROUP BY Examples</span></div>
+        <pre>
+  <span class="cm">-- How many customers per city?</span>
+  <span class="kw">SELECT</span>   city, <span class="fn">COUNT</span>(*) <span class="kw">AS</span> num_customers
+  <span class="kw">FROM</span>     <span class="tbl">customers</span>
+  <span class="kw">GROUP BY</span> city
+  <span class="kw">ORDER BY</span> num_customers <span class="kw">DESC</span>;
+
+  <span class="cm">-- Total revenue per order status</span>
+  <span class="kw">SELECT</span>   status,
+           <span class="fn">COUNT</span>(*) <span class="kw">AS</span> num_orders,
+           <span class="fn">SUM</span>(amount) <span class="kw">AS</span> total_amount
+  <span class="kw">FROM</span>     <span class="tbl">orders</span>
+  <span class="kw">GROUP BY</span> status;
+
+  <span class="cm">-- HAVING: Filter AFTER grouping (like WHERE but for groups)</span>
+  <span class="kw">SELECT</span>   city, <span class="fn">COUNT</span>(*) <span class="kw">AS</span> num_customers
+  <span class="kw">FROM</span>     <span class="tbl">customers</span>
+  <span class="kw">GROUP BY</span> city
+  <span class="kw">HAVING</span>   <span class="fn">COUNT</span>(*) > <span class="num">1</span>;   <span class="cm">-- Only cities with more than 1 customer</span>
+        </pre>
+      </div>
+
+      <div class="highlight-box">
+        <h4>📋 FULL SQL ORDER OF OPERATIONS</h4>
+        <ul>
+          <li><strong>SELECT</strong> — What columns/calculations to show</li>
+          <li><strong>FROM</strong> — Which table(s)</li>
+          <li><strong>JOIN</strong> — Connect other tables</li>
+          <li><strong>WHERE</strong> — Filter individual rows</li>
+          <li><strong>GROUP BY</strong> — Group rows for aggregation</li>
+          <li><strong>HAVING</strong> — Filter groups (after GROUP BY)</li>
+          <li><strong>ORDER BY</strong> — Sort the results</li>
+          <li><strong>LIMIT</strong> — How many rows to return</li>
+        </ul>
+      </div>
+    `,
+    quiz: {
+      questions: [
+        {
+          q: "Which function calculates the TOTAL of a numeric column?",
+          options: ["COUNT()", "AVG()", "SUM()", "TOTAL()"],
+          correct: 2,
+          explanation: "SUM() adds up all values in a numeric column. SUM(amount) would give you the total of all order amounts, for example."
+        },
+        {
+          q: "What does GROUP BY do?",
+          options: [
+            "Sorts results alphabetically",
+            "Groups rows by a column so aggregates are calculated per group",
+            "Joins two tables together",
+            "Removes duplicate rows"
+          ],
+          correct: 1,
+          explanation: "GROUP BY divides rows into groups based on a column's values, then applies aggregate functions to each group separately. e.g., GROUP BY city gives you counts PER city."
+        },
+        {
+          q: "You want cities with more than 5 customers. You've already done GROUP BY city. Which clause filters the groups?",
+          options: [
+            "WHERE COUNT(*) > 5",
+            "FILTER COUNT > 5",
+            "HAVING COUNT(*) > 5",
+            "LIMIT 5"
+          ],
+          correct: 2,
+          explanation: "HAVING filters results AFTER grouping — it's like WHERE but for grouped data. Use WHERE before grouping (row-level filter) and HAVING after (group-level filter)."
+        }
+      ]
+    },
+    playground: {
+      hint: "Try: SELECT city, COUNT(*) as customers FROM customers GROUP BY city; — See how many customers are in each city!",
+      defaultQuery: "-- Revenue and order count by status\nSELECT \n  status,\n  COUNT(*) AS num_orders,\n  SUM(amount) AS total_revenue,\n  AVG(amount) AS avg_order\nFROM orders\nGROUP BY status\nORDER BY total_revenue DESC;"
+    }
+  },
+
+  // ─── CHAPTER 7: PRIMARY KEY & FOREIGN KEY ────────────────────────────────────
+  {
+    id: 6,
+    tag: "Chapter 7",
+    title: "Primary Keys & Foreign Keys",
+    lead: "Keys are what make a database smart. They identify records uniquely and link tables together — preventing chaos and keeping your data trustworthy.",
+    content: `
+      <div class="analogy-box">
+        <div class="analogy-icon">🔑</div>
+        <div class="analogy-text">
+          <strong>Think of a Primary Key like a passport number.</strong> Every person in the world has a unique one —
+          no two are the same, and it never changes. A <strong>Foreign Key</strong> is like writing someone's 
+          passport number on a visa application — it's a reference that says "this record belongs to THAT person."
+        </div>
+      </div>
+
+      <div class="concept-card">
+        <h3>Primary Key (PK) — The Unique Identifier</h3>
+        <p>Every table should have a <strong>Primary Key</strong> — one column (or combination of columns) 
+        that <em>uniquely identifies</em> each row. Think of it as the row's fingerprint.</p>
+        <ul>
+          <li><strong>Unique</strong> — No two rows can have the same PK value</li>
+          <li><strong>Not Null</strong> — A PK can never be empty/blank</li>
+          <li><strong>Stable</strong> — It should never change once set</li>
+          <li><strong>Usually a number</strong> — Integers that auto-increment (1, 2, 3, 4…)</li>
+        </ul>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span></span><span>Primary Key in CREATE TABLE</span></div>
+        <pre>
+  <span class="cm">-- customer_id is the Primary Key</span>
+  <span class="cm">-- AUTOINCREMENT means the DB assigns 1, 2, 3... automatically</span>
+  <span class="kw">CREATE TABLE</span> <span class="tbl">customers</span> (
+    customer_id  <span class="fn">INTEGER</span>  <span class="kw">PRIMARY KEY</span> AUTOINCREMENT,
+    name         <span class="fn">TEXT</span>     <span class="kw">NOT NULL</span>,
+    email        <span class="fn">TEXT</span>,
+    city         <span class="fn">TEXT</span>
+  );
+
+  <span class="cm">-- product_id is the Primary Key for products</span>
+  <span class="kw">CREATE TABLE</span> <span class="tbl">products</span> (
+    product_id   <span class="fn">INTEGER</span>  <span class="kw">PRIMARY KEY</span> AUTOINCREMENT,
+    product_name <span class="fn">TEXT</span>     <span class="kw">NOT NULL</span>,
+    price        <span class="fn">REAL</span>
+  );
+        </pre>
+      </div>
+
+      <div class="concept-card">
+        <h3>Foreign Key (FK) — The Link Between Tables</h3>
+        <p>A <strong>Foreign Key</strong> is a column in one table that <em>references</em> the Primary Key 
+        of another table. It's the glue that connects related data across tables.</p>
+        <p>In our example, the <code>orders</code> table has a <code>customer_id</code> column. 
+        That value must match a real <code>customer_id</code> in the <code>customers</code> table — 
+        you can't place an order for a customer who doesn't exist!</p>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span></span><span>Foreign Key in CREATE TABLE</span></div>
+        <pre>
+  <span class="kw">CREATE TABLE</span> <span class="tbl">orders</span> (
+    order_id     <span class="fn">INTEGER</span>  <span class="kw">PRIMARY KEY</span> AUTOINCREMENT,
+
+    <span class="cm">-- These are FOREIGN KEYS — they reference other tables</span>
+    customer_id  <span class="fn">INTEGER</span>  <span class="kw">REFERENCES</span> <span class="tbl">customers</span>(customer_id),
+    product_id   <span class="fn">INTEGER</span>  <span class="kw">REFERENCES</span> <span class="tbl">products</span>(product_id),
+
+    amount       <span class="fn">REAL</span>,
+    status       <span class="fn">TEXT</span>,
+    order_date   <span class="fn">TEXT</span>
+  );
+
+  <span class="cm">-- Alternative syntax using FOREIGN KEY constraint at the bottom:</span>
+  <span class="kw">CREATE TABLE</span> <span class="tbl">orders</span> (
+    order_id    <span class="fn">INTEGER</span> <span class="kw">PRIMARY KEY</span>,
+    customer_id <span class="fn">INTEGER</span>,
+    product_id  <span class="fn">INTEGER</span>,
+    amount      <span class="fn">REAL</span>,
+    <span class="kw">FOREIGN KEY</span> (customer_id) <span class="kw">REFERENCES</span> <span class="tbl">customers</span>(customer_id),
+    <span class="kw">FOREIGN KEY</span> (product_id)  <span class="kw">REFERENCES</span> <span class="tbl">products</span>(product_id)
+  );
+        </pre>
+      </div>
+
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:28px">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:1.5px;margin-bottom:18px;text-transform:uppercase">Visual: How Keys Link Tables</div>
+        <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start">
+          <div style="flex:1;min-width:160px;background:#080d18;border:1px solid rgba(0,212,255,0.2);border-radius:10px;overflow:hidden">
+            <div style="background:rgba(0,212,255,0.08);padding:10px 14px;font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:700;border-bottom:1px solid rgba(0,212,255,0.15)">customers</div>
+            <div style="padding:10px 14px">
+              <div style="font-family:var(--mono);font-size:11px;color:var(--yellow);padding:3px 0;font-weight:700">🔑 customer_id (PK)</div>
+              <div style="font-family:var(--mono);font-size:11px;color:#64748b;padding:3px 0">name</div>
+              <div style="font-family:var(--mono);font-size:11px;color:#64748b;padding:3px 0">email</div>
+              <div style="font-family:var(--mono);font-size:11px;color:#64748b;padding:3px 0">city</div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px 0;gap:6px">
+            <div style="font-size:22px">🔗</div>
+            <div style="font-family:var(--mono);font-size:9px;color:var(--muted);text-align:center;letter-spacing:0.5px">FK links to PK</div>
+          </div>
+          <div style="flex:1;min-width:160px;background:#080d18;border:1px solid rgba(255,107,53,0.2);border-radius:10px;overflow:hidden">
+            <div style="background:rgba(255,107,53,0.08);padding:10px 14px;font-family:var(--mono);font-size:12px;color:var(--accent2);font-weight:700;border-bottom:1px solid rgba(255,107,53,0.15)">orders</div>
+            <div style="padding:10px 14px">
+              <div style="font-family:var(--mono);font-size:11px;color:var(--yellow);padding:3px 0;font-weight:700">🔑 order_id (PK)</div>
+              <div style="font-family:var(--mono);font-size:11px;color:var(--accent);padding:3px 0;font-weight:600">🔗 customer_id (FK)</div>
+              <div style="font-family:var(--mono);font-size:11px;color:var(--accent);padding:3px 0;font-weight:600">🔗 product_id (FK)</div>
+              <div style="font-family:var(--mono);font-size:11px;color:#64748b;padding:3px 0">amount</div>
+              <div style="font-family:var(--mono);font-size:11px;color:#64748b;padding:3px 0">status</div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px 0;gap:6px">
+            <div style="font-size:22px">🔗</div>
+            <div style="font-family:var(--mono);font-size:9px;color:var(--muted);text-align:center;letter-spacing:0.5px">FK links to PK</div>
+          </div>
+          <div style="flex:1;min-width:160px;background:#080d18;border:1px solid rgba(124,58,237,0.2);border-radius:10px;overflow:hidden">
+            <div style="background:rgba(124,58,237,0.08);padding:10px 14px;font-family:var(--mono);font-size:12px;color:#a78bfa;font-weight:700;border-bottom:1px solid rgba(124,58,237,0.15)">products</div>
+            <div style="padding:10px 14px">
+              <div style="font-family:var(--mono);font-size:11px;color:var(--yellow);padding:3px 0;font-weight:700">🔑 product_id (PK)</div>
+              <div style="font-family:var(--mono);font-size:11px;color:#64748b;padding:3px 0">product_name</div>
+              <div style="font-family:var(--mono);font-size:11px;color:#64748b;padding:3px 0">category</div>
+              <div style="font-family:var(--mono);font-size:11px;color:#64748b;padding:3px 0">price</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="highlight-box">
+        <h4>💡 PK vs FK — Quick Summary</h4>
+        <ul>
+          <li><strong>Primary Key (PK)</strong> — Lives in its own table. Uniquely identifies each row. Like a passport number.</li>
+          <li><strong>Foreign Key (FK)</strong> — Lives in a related table. Points back to a PK somewhere else. Like writing a passport number on a form.</li>
+          <li><strong>One table can have many FKs</strong> — the orders table has two (customer_id AND product_id)</li>
+          <li><strong>FK enforces integrity</strong> — you can't reference a customer that doesn't exist</li>
+          <li>The column name doesn't have to match, but keeping it consistent (customer_id → customer_id) is a best practice</li>
+        </ul>
+      </div>
+    `,
+    quiz: {
+      questions: [
+        {
+          q: "What is the purpose of a Primary Key?",
+          options: [
+            "To encrypt sensitive data",
+            "To uniquely identify each row in a table — like a fingerprint",
+            "To link two tables together",
+            "To sort rows alphabetically"
+          ],
+          correct: 1,
+          explanation: "A Primary Key uniquely identifies every row in a table. No two rows can share the same PK value, and it can never be NULL. It's the row's unique fingerprint."
+        },
+        {
+          q: "In the orders table, customer_id is a Foreign Key. What does this mean?",
+          options: [
+            "customer_id is encrypted for security",
+            "customer_id is always a text value",
+            "customer_id must match a valid customer_id in the customers table",
+            "customer_id is optional and can be left empty"
+          ],
+          correct: 2,
+          explanation: "A Foreign Key is a reference — it must point to a real, existing Primary Key in another table. This prevents 'orphan' orders that belong to customers who don't exist."
+        },
+        {
+          q: "Can a table have a Foreign Key that points to itself?",
+          options: [
+            "No, that's impossible",
+            "Yes — for example, an employees table where manager_id references another employee_id in the same table",
+            "Only if there are fewer than 10 rows",
+            "Only in MySQL, not other databases"
+          ],
+          correct: 1,
+          explanation: "Yes! A self-referencing FK is called a recursive relationship. A classic example: an employees table where each employee has a manager_id that points back to another employee's employee_id."
+        }
+      ]
+    },
+    playground: {
+      hint: "Try: SELECT o.order_id, c.name, p.product_name, o.amount FROM orders o JOIN customers c ON o.customer_id = c.customer_id JOIN products p ON o.product_id = p.product_id; — See the FK links in action!",
+      defaultQuery: "-- See how Foreign Keys connect the three tables\n-- customer_id in orders → customer_id in customers\n-- product_id in orders → product_id in products\n\nSELECT \n  o.order_id,\n  c.name        AS customer,\n  c.city,\n  p.product_name,\n  p.category,\n  o.amount,\n  o.status\nFROM orders o\nJOIN customers c ON o.customer_id = c.customer_id\nJOIN products  p ON o.product_id  = p.product_id\nORDER BY o.order_id;"
+    }
+  },
+
+  // ─── CHAPTER 8: CONSTRAINTS & RELATIONSHIPS ──────────────────────────────────
+  {
+    id: 7,
+    tag: "Chapter 8",
+    title: "Constraints & Relationships",
+    lead: "Constraints are the rules of your database — they stop bad data from getting in. Relationships define how tables connect. Together, they keep your data clean, accurate, and trustworthy.",
+    content: `
+      <div class="analogy-box">
+        <div class="analogy-icon">🛡️</div>
+        <div class="analogy-text">
+          <strong>Constraints are like a bouncer at a club.</strong> 
+          No matter how nicely you ask, if the data doesn't meet the rules — it doesn't get in.
+          They protect your database from invalid, incomplete, or contradictory data,
+          so you never end up with a negative price, a nameless customer, or a duplicate ID.
+        </div>
+      </div>
+
+      <div class="concept-card">
+        <h3>The 6 Core Constraints</h3>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span></span><span>Constraints in Action</span></div>
+        <pre>
+  <span class="kw">CREATE TABLE</span> <span class="tbl">products</span> (
+
+    <span class="cm">-- 1. PRIMARY KEY: Unique + Not Null, auto-assigned</span>
+    product_id   <span class="fn">INTEGER</span>  <span class="kw">PRIMARY KEY</span> AUTOINCREMENT,
+
+    <span class="cm">-- 2. NOT NULL: This field MUST have a value — can't be blank</span>
+    product_name <span class="fn">TEXT</span>     <span class="kw">NOT NULL</span>,
+
+    <span class="cm">-- 3. UNIQUE: No two rows can have the same value here</span>
+    sku          <span class="fn">TEXT</span>     <span class="kw">UNIQUE</span>,
+
+    <span class="cm">-- 4. DEFAULT: If no value is given, use this fallback</span>
+    category     <span class="fn">TEXT</span>     <span class="kw">DEFAULT</span> <span class="str">'Uncategorised'</span>,
+
+    <span class="cm">-- 5. CHECK: Enforce a custom rule (price must be positive)</span>
+    price        <span class="fn">REAL</span>     <span class="kw">CHECK</span> (price > <span class="num">0</span>),
+
+    <span class="cm">-- 6. FOREIGN KEY: Must reference a valid row in another table</span>
+    supplier_id  <span class="fn">INTEGER</span>  <span class="kw">REFERENCES</span> <span class="tbl">suppliers</span>(supplier_id)
+  );
+        </pre>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-bottom:28px">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;border-top:3px solid var(--accent)">
+          <div style="font-family:var(--mono);font-size:13px;color:var(--accent);font-weight:700;margin-bottom:8px">NOT NULL</div>
+          <div style="font-size:13px;color:#94a3b8;line-height:1.7">The field cannot be left empty. Great for essential info like name, email, price. Without it, a column accepts blank/NULL values.</div>
+          <div style="font-family:var(--mono);font-size:11px;color:#475569;margin-top:8px">name TEXT NOT NULL</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;border-top:3px solid var(--accent2)">
+          <div style="font-family:var(--mono);font-size:13px;color:var(--accent2);font-weight:700;margin-bottom:8px">UNIQUE</div>
+          <div style="font-size:13px;color:#94a3b8;line-height:1.7">No two rows can share this value. Perfect for email addresses, usernames, product codes — anything that must be one-of-a-kind.</div>
+          <div style="font-family:var(--mono);font-size:11px;color:#475569;margin-top:8px">email TEXT UNIQUE</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;border-top:3px solid var(--yellow)">
+          <div style="font-family:var(--mono);font-size:13px;color:var(--yellow);font-weight:700;margin-bottom:8px">DEFAULT</div>
+          <div style="font-size:13px;color:#94a3b8;line-height:1.7">When inserting a row, if you don't provide a value for this column, the database fills it in automatically with the default.</div>
+          <div style="font-family:var(--mono);font-size:11px;color:#475569;margin-top:8px">status TEXT DEFAULT 'pending'</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;border-top:3px solid var(--green)">
+          <div style="font-family:var(--mono);font-size:13px;color:var(--green);font-weight:700;margin-bottom:8px">CHECK</div>
+          <div style="font-size:13px;color:#94a3b8;line-height:1.7">Define a custom rule the data must satisfy. The database rejects any INSERT or UPDATE that violates it. Stops impossible values.</div>
+          <div style="font-family:var(--mono);font-size:11px;color:#475569;margin-top:8px">price REAL CHECK (price > 0)</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;border-top:3px solid #a78bfa">
+          <div style="font-family:var(--mono);font-size:13px;color:#a78bfa;font-weight:700;margin-bottom:8px">PRIMARY KEY</div>
+          <div style="font-size:13px;color:#94a3b8;line-height:1.7">Combines UNIQUE + NOT NULL automatically. Identifies each row uniquely. Every well-designed table should have exactly one.</div>
+          <div style="font-family:var(--mono);font-size:11px;color:#475569;margin-top:8px">id INTEGER PRIMARY KEY</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;border-top:3px solid var(--red)">
+          <div style="font-family:var(--mono);font-size:13px;color:var(--red);font-weight:700;margin-bottom:8px">FOREIGN KEY</div>
+          <div style="font-size:13px;color:#94a3b8;line-height:1.7">Links to a Primary Key in another table. Prevents 'orphan' records — e.g., an order that references a customer who doesn't exist.</div>
+          <div style="font-family:var(--mono);font-size:11px;color:#475569;margin-top:8px">cust_id INTEGER REFERENCES customers(id)</div>
+        </div>
+      </div>
+
+      <div class="concept-card">
+        <h3>Table Relationships — How Tables Connect</h3>
+        <p>There are three types of relationships between tables. Understanding them helps you design databases that are logical and efficient.</p>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:28px">
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px 24px">
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">
+            <div style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.2);border-radius:8px;padding:8px 14px;font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:700;white-space:nowrap">ONE-TO-MANY</div>
+            <div style="font-family:var(--mono);font-size:18px;color:var(--muted)">1 → ∞</div>
+            <div style="font-size:13px;color:#94a3b8;font-weight:600">Most common relationship</div>
+          </div>
+          <div style="font-size:14px;color:#94a3b8;line-height:1.75;margin-bottom:10px">
+            One record in Table A can relate to <strong style="color:var(--text)">many records</strong> in Table B — but each record in Table B relates to only <strong style="color:var(--text)">one</strong> record in Table A.
+          </div>
+          <div style="font-family:var(--mono);font-size:12px;color:var(--muted);background:#060d1a;padding:10px 14px;border-radius:8px">
+            Example: One <span style="color:var(--accent)">customer</span> can have many <span style="color:var(--accent2)">orders</span>. But each order belongs to only one customer.
+          </div>
+        </div>
+
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px 24px">
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">
+            <div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);border-radius:8px;padding:8px 14px;font-family:var(--mono);font-size:12px;color:var(--green);font-weight:700;white-space:nowrap">ONE-TO-ONE</div>
+            <div style="font-family:var(--mono);font-size:18px;color:var(--muted)">1 → 1</div>
+            <div style="font-size:13px;color:#94a3b8;font-weight:600">Less common, used for security or splitting large tables</div>
+          </div>
+          <div style="font-size:14px;color:#94a3b8;line-height:1.75;margin-bottom:10px">
+            One record in Table A relates to <strong style="color:var(--text)">exactly one</strong> record in Table B, and vice versa.
+          </div>
+          <div style="font-family:var(--mono);font-size:12px;color:var(--muted);background:#060d1a;padding:10px 14px;border-radius:8px">
+            Example: One <span style="color:var(--accent)">user</span> has one <span style="color:var(--accent2)">user_profile</span>. One passport per person. Often used to separate sensitive data (like passwords) from regular data.
+          </div>
+        </div>
+
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:22px 24px">
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">
+            <div style="background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.2);border-radius:8px;padding:8px 14px;font-family:var(--mono);font-size:12px;color:#a78bfa;font-weight:700;white-space:nowrap">MANY-TO-MANY</div>
+            <div style="font-family:var(--mono);font-size:18px;color:var(--muted)">∞ → ∞</div>
+            <div style="font-size:13px;color:#94a3b8;font-weight:600">Requires a junction/bridge table</div>
+          </div>
+          <div style="font-size:14px;color:#94a3b8;line-height:1.75;margin-bottom:10px">
+            Records in Table A can relate to <strong style="color:var(--text)">many</strong> records in Table B, AND records in Table B can relate to many in Table A.
+            This requires a <strong style="color:var(--text)">junction table</strong> in the middle.
+          </div>
+          <div style="font-family:var(--mono);font-size:12px;color:var(--muted);background:#060d1a;padding:10px 14px;border-radius:8px">
+            Example: A <span style="color:var(--accent)">student</span> can enrol in many <span style="color:var(--accent2)">courses</span>. A course can have many students. Solution: create a <span style="color:var(--green)">student_courses</span> junction table with student_id + course_id.
+          </div>
+        </div>
+      </div>
+
+      <div class="code-block">
+        <div class="code-header"><span><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span></span><span>Many-to-Many: Junction Table Pattern</span></div>
+        <pre>
+  <span class="cm">-- Students and Courses have a many-to-many relationship</span>
+  <span class="cm">-- We solve it with a junction (bridge) table</span>
+
+  <span class="kw">CREATE TABLE</span> <span class="tbl">students</span> (
+    student_id <span class="fn">INTEGER</span> <span class="kw">PRIMARY KEY</span>,
+    name       <span class="fn">TEXT</span> <span class="kw">NOT NULL</span>
+  );
+
+  <span class="kw">CREATE TABLE</span> <span class="tbl">courses</span> (
+    course_id   <span class="fn">INTEGER</span> <span class="kw">PRIMARY KEY</span>,
+    course_name <span class="fn">TEXT</span> <span class="kw">NOT NULL</span>
+  );
+
+  <span class="cm">-- Junction table: one row per student-course enrolment</span>
+  <span class="kw">CREATE TABLE</span> <span class="tbl">enrolments</span> (
+    student_id  <span class="fn">INTEGER</span> <span class="kw">REFERENCES</span> <span class="tbl">students</span>(student_id),
+    course_id   <span class="fn">INTEGER</span> <span class="kw">REFERENCES</span> <span class="tbl">courses</span>(course_id),
+    enrolled_on <span class="fn">TEXT</span>,
+    <span class="kw">PRIMARY KEY</span> (student_id, course_id)  <span class="cm">-- Composite PK</span>
+  );
+        </pre>
+      </div>
+
+      <div class="highlight-box">
+        <h4>🏗️ REFERENTIAL INTEGRITY — The Database Safety Net</h4>
+        <ul>
+          <li><strong>Referential integrity</strong> means the database enforces that Foreign Keys always point to real data</li>
+          <li>If you try to INSERT an order with customer_id = 999 (and customer 999 doesn't exist) — the database <strong>rejects it</strong></li>
+          <li>If you try to DELETE a customer who still has orders — the database <strong>blocks it</strong> (unless you set CASCADE rules)</li>
+          <li><strong>ON DELETE CASCADE</strong> — if the parent is deleted, automatically delete its children too</li>
+          <li><strong>ON DELETE SET NULL</strong> — if the parent is deleted, set the FK column to NULL instead</li>
+          <li>Constraints are enforced at the <em>database level</em> — even if someone bypasses your app code, the data stays clean</li>
+        </ul>
+      </div>
+    `,
+    quiz: {
+      questions: [
+        {
+          q: "A products table has: price REAL CHECK (price > 0). What happens if you try to INSERT a product with price = -5?",
+          options: [
+            "It inserts successfully and stores -5",
+            "It stores 0 instead (rounds up to minimum)",
+            "The database rejects the INSERT with an error",
+            "It asks you to confirm the negative price"
+          ],
+          correct: 2,
+          explanation: "CHECK constraints enforce rules at the database level. If the condition fails (price > 0 is false for -5), the INSERT is rejected entirely with an error. The bad data never enters the table."
+        },
+        {
+          q: "You have a customers table and an orders table. A customer has 3 orders. You try to DELETE the customer. What happens with referential integrity enforced?",
+          options: [
+            "The customer is deleted, and their orders are automatically updated",
+            "The DELETE is blocked — you can't delete a customer who has existing orders",
+            "The customer is deleted but their orders remain with a NULL customer_id",
+            "All 3 orders are deleted first, then the customer"
+          ],
+          correct: 1,
+          explanation: "With referential integrity, the database blocks the DELETE because those 3 orders still reference the customer. You'd either need to delete/reassign the orders first, use ON DELETE CASCADE, or use ON DELETE SET NULL."
+        },
+        {
+          q: "Students and Courses have a many-to-many relationship. How do you model this in a relational database?",
+          options: [
+            "Store a list of course IDs inside each student row",
+            "Create a junction (bridge) table with student_id and course_id as Foreign Keys",
+            "Duplicate every student row once per course",
+            "Many-to-many relationships cannot be stored in SQL databases"
+          ],
+          correct: 1,
+          explanation: "Many-to-many relationships require a junction table (also called a bridge or associative table). It holds two Foreign Keys — one referencing each parent table — with each row representing one relationship pair."
+        }
+      ]
+    },
+    playground: {
+      hint: "Try: PRAGMA table_info(orders); — This shows the column definitions for the orders table including all constraints!",
+      defaultQuery: "-- Explore the table structures and constraints\n\n-- See column info for the orders table\nPRAGMA table_info(orders);\n\n-- Check foreign key relationships\nPRAGMA foreign_key_list(orders);\n\n-- Count orders per customer (demonstrating the 1-to-many relationship)\n-- SELECT c.name, COUNT(o.order_id) AS total_orders\n-- FROM customers c\n-- LEFT JOIN orders o ON c.customer_id = o.customer_id\n-- GROUP BY c.name\n-- ORDER BY total_orders DESC;"
+    }
+  }
+];
+
+// ─── SAMPLE DATABASE SCHEMA ───────────────────────────────────────────────────
+
+const DB_SCHEMA = `
+CREATE TABLE customers (
+  customer_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  email TEXT,
+  city TEXT
+);
+CREATE TABLE products (
+  product_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  product_name TEXT NOT NULL,
+  category TEXT,
+  price REAL
+);
+CREATE TABLE orders (
+  order_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  customer_id INTEGER,
+  product_id INTEGER,
+  amount REAL,
+  status TEXT,
+  order_date TEXT
+);
+
+INSERT INTO customers (name, email, city) VALUES
+  ('Alice Tan', 'alice@email.com', 'Singapore'),
+  ('Bob Lim', 'bob@email.com', 'Singapore'),
+  ('Carol Wong', 'carol@email.com', 'Kuala Lumpur'),
+  ('David Ng', 'david@email.com', 'Bangkok'),
+  ('Emma Chen', 'emma@email.com', 'Singapore'),
+  ('Frank Ho', 'frank@email.com', 'Hong Kong'),
+  ('Grace Liu', 'grace@email.com', 'Bangkok');
+
+INSERT INTO products (product_name, category, price) VALUES
+  ('Wireless Headphones', 'Electronics', 149.99),
+  ('Running Shoes', 'Sportswear', 89.90),
+  ('Coffee Maker', 'Appliances', 79.00),
+  ('Yoga Mat', 'Sportswear', 45.00),
+  ('Smart Watch', 'Electronics', 299.00),
+  ('Blender', 'Appliances', 65.50),
+  ('Gaming Mouse', 'Electronics', 55.00);
+
+INSERT INTO orders (customer_id, product_id, amount, status, order_date) VALUES
+  (1, 1, 149.99, 'completed', '2024-01-10'),
+  (1, 5, 299.00, 'completed', '2024-01-22'),
+  (2, 2,  89.90, 'completed', '2024-01-15'),
+  (3, 3,  79.00, 'pending',   '2024-01-18'),
+  (3, 4,  45.00, 'completed', '2024-01-20'),
+  (4, 7,  55.00, 'cancelled', '2024-01-12'),
+  (5, 1, 149.99, 'completed', '2024-01-25'),
+  (5, 6,  65.50, 'pending',   '2024-01-28'),
+  (6, 5, 299.00, 'completed', '2024-01-30'),
+  (7, 2,  89.90, 'completed', '2024-02-01'),
+  (2, 4,  45.00, 'cancelled', '2024-02-03'),
+  (1, 7,  55.00, 'completed', '2024-02-05');
+`;
+
+const SCHEMA_DISPLAY = [
+  {
+    name: 'customers',
+    cols: [
+      { name: 'customer_id', type: 'INTEGER', pk: true },
+      { name: 'name', type: 'TEXT' },
+      { name: 'email', type: 'TEXT' },
+      { name: 'city', type: 'TEXT' }
+    ]
+  },
+  {
+    name: 'orders',
+    cols: [
+      { name: 'order_id', type: 'INTEGER', pk: true },
+      { name: 'customer_id', type: 'INTEGER' },
+      { name: 'product_id', type: 'INTEGER' },
+      { name: 'amount', type: 'REAL' },
+      { name: 'status', type: 'TEXT' },
+      { name: 'order_date', type: 'TEXT' }
+    ]
+  },
+  {
+    name: 'products',
+    cols: [
+      { name: 'product_id', type: 'INTEGER', pk: true },
+      { name: 'product_name', type: 'TEXT' },
+      { name: 'category', type: 'TEXT' },
+      { name: 'price', type: 'REAL' }
+    ]
+  }
+];
+
+const SAMPLE_QUERIES = [
+  { label: 'All Customers', q: 'SELECT * FROM customers;' },
+  { label: 'Singapore Customers', q: "SELECT * FROM customers WHERE city = 'Singapore';" },
+  { label: 'Orders + Names', q: "SELECT c.name, o.amount, o.status\nFROM customers c\nINNER JOIN orders o ON c.customer_id = o.customer_id\nORDER BY o.amount DESC;" },
+  { label: 'Revenue by City', q: "SELECT c.city, COUNT(o.order_id) AS orders, SUM(o.amount) AS revenue\nFROM customers c\nLEFT JOIN orders o ON c.customer_id = o.customer_id\nGROUP BY c.city\nORDER BY revenue DESC;" },
+  { label: 'All Products', q: 'SELECT * FROM products ORDER BY price DESC;' },
+];
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+
+let currentChapter = 0;
+let db = null;
+let completedChapters = new Set();
+let quizStates = {};
+
+// ─── INIT SQL.JS ──────────────────────────────────────────────────────────────
+
+async function initDB() {
+  try {
+    const SQL = await initSqlJs({
+      locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${file}`
+    });
+    db = new SQL.Database();
+    db.run(DB_SCHEMA);
+    console.log("Database initialised!");
+  } catch(e) {
+    console.error("DB init failed:", e);
+  }
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+
+function renderSidebar() {
+  const nav = document.getElementById('chapterNav');
+  nav.innerHTML = chapters.map(ch => `
+    <div class="chapter-group">
+      <button class="chapter-btn ${ch.id === currentChapter ? 'active' : ''} ${completedChapters.has(ch.id) ? 'completed' : ''}"
+              onclick="goToChapter(${ch.id})">
+        <span class="chapter-num">${completedChapters.has(ch.id) ? '' : ch.id + 1}</span>
+        ${ch.tag}: ${ch.title}
+      </button>
+    </div>
+  `).join('');
+}
+
+function renderProgress() {
+  const pct = (completedChapters.size / chapters.length) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = `${completedChapters.size} / ${chapters.length} chapters`;
+}
+
+function goToChapter(id) {
+  currentChapter = id;
+  renderSidebar();
+  renderChapter();
+  document.querySelector('.main-content').scrollTop = 0;
+  window.scrollTo(0, 0);
+}
+
+function renderChapter() {
+  const ch = chapters[currentChapter];
+  const quiz = renderQuiz(ch);
+  const playground = renderPlayground(ch);
+
+  const prevBtn = currentChapter > 0 ? `
+    <button class="nav-btn" onclick="goToChapter(${currentChapter - 1})">
+      <span class="nav-btn-label">← Previous</span>
+      <span class="nav-btn-title">${chapters[currentChapter - 1].title}</span>
+    </button>
+  ` : '<div></div>';
+
+  const nextBtn = currentChapter < chapters.length - 1 ? `
+    <button class="nav-btn next" onclick="goToChapter(${currentChapter + 1})">
+      <span class="nav-btn-label">Next →</span>
+      <span class="nav-btn-title">${chapters[currentChapter + 1].title}</span>
+    </button>
+  ` : `<button class="nav-btn next" onclick="alert('🎉 You\\'ve completed all chapters! You are now an SQL hero!')">
+    <span class="nav-btn-label">🎉 Complete!</span>
+    <span class="nav-btn-title">You did it!</span>
+  </button>`;
+
+  document.getElementById('mainContent').innerHTML = `
+    <div class="chapter-header">
+      <div class="chapter-tag">${ch.tag}</div>
+      <h2>${ch.title}</h2>
+      <p class="lead">${ch.lead}</p>
+    </div>
+    ${ch.content}
+    <div class="section-divider"></div>
+    ${quiz}
+    ${playground}
+    <div class="chapter-nav-btns">
+      ${prevBtn}
+      ${nextBtn}
+    </div>
+  `;
+
+  // Re-attach quiz handlers
+  attachQuizHandlers(ch);
+  attachPlaygroundHandlers(ch);
+}
+
+// ─── QUIZ ─────────────────────────────────────────────────────────────────────
+
+function renderQuiz(ch) {
+  const state = quizStates[ch.id] || { current: 0, score: 0, answers: {}, done: false };
+  const qi = state.current;
+  const q = ch.quiz.questions[qi];
+  const total = ch.quiz.questions.length;
+
+  if (state.done) {
+    const pct = Math.round((state.score / total) * 100);
+    const emoji = pct === 100 ? '🏆' : pct >= 66 ? '👍' : '📖';
+    return `
+      <div class="quiz-section">
+        <div class="quiz-header">
+          <span class="quiz-icon">✅</span>
+          <span class="quiz-title">Quiz Complete!</span>
+        </div>
+        <div style="text-align:center;padding:20px">
+          <div style="font-size:48px;margin-bottom:16px">${emoji}</div>
+          <div style="font-size:28px;font-weight:800;color:var(--accent);margin-bottom:8px">${state.score}/${total} correct</div>
+          <div style="color:var(--muted);margin-bottom:24px">${pct === 100 ? 'Perfect score! You nailed it.' : pct >= 66 ? 'Great work! Keep it up.' : 'Review the chapter content and try again!'}</div>
+          <button class="btn btn-secondary" onclick="resetQuiz(${ch.id})">Retry Quiz</button>
+          ${currentChapter < chapters.length - 1 ? `<button class="btn btn-primary" style="margin-left:10px" onclick="goToChapter(${currentChapter + 1})">Next Chapter →</button>` : ''}
+        </div>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="quiz-section">
+      <div class="quiz-header">
+        <span class="quiz-icon">🧠</span>
+        <span class="quiz-title">Quick Quiz — Question ${qi + 1} of ${total}</span>
+      </div>
+      <div class="quiz-question">${q.q}</div>
+      <div class="quiz-options" id="quizOptions">
+        ${q.options.map((opt, i) => `
+          <button class="quiz-option" data-index="${i}" onclick="answerQuiz(${ch.id}, ${qi}, ${i})">
+            <span class="option-badge">${String.fromCharCode(65 + i)}</span>
+            ${opt}
+          </button>
+        `).join('')}
+      </div>
+      <div class="quiz-feedback" id="quizFeedback"></div>
+      <div class="quiz-nav">
+        <button class="btn btn-primary" id="nextQBtn" style="display:none" onclick="nextQuestion(${ch.id})">
+          ${qi < total - 1 ? 'Next Question →' : 'See Results'}
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function answerQuiz(chId, qi, selected) {
+  const ch = chapters[chId];
+  const q = ch.quiz.questions[qi];
+  if (!quizStates[chId]) quizStates[chId] = { current: 0, score: 0, answers: {}, done: false };
+  const state = quizStates[chId];
+
+  if (state.answers[qi] !== undefined) return;
+  state.answers[qi] = selected;
+  if (selected === q.correct) state.score++;
+
+  const opts = document.querySelectorAll('.quiz-option');
+  opts.forEach((btn, i) => {
+    btn.classList.add('disabled');
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === selected) btn.classList.add('wrong');
+  });
+
+  const fb = document.getElementById('quizFeedback');
+  fb.classList.add('show');
+  if (selected === q.correct) {
+    fb.classList.add('success');
+    fb.innerHTML = '✅ ' + q.explanation;
+  } else {
+    fb.classList.add('error');
+    fb.innerHTML = '❌ ' + q.explanation;
+  }
+  document.getElementById('nextQBtn').style.display = 'inline-flex';
+}
+
+function nextQuestion(chId) {
+  const state = quizStates[chId];
+  const total = chapters[chId].quiz.questions.length;
+  state.current++;
+  if (state.current >= total) {
+    state.done = true;
+    completedChapters.add(chId);
+    renderProgress();
+    renderSidebar();
+  }
+  renderChapter();
+}
+
+function resetQuiz(chId) {
+  quizStates[chId] = { current: 0, score: 0, answers: {}, done: false };
+  renderChapter();
+}
+
+function attachQuizHandlers() { /* handlers attached inline */ }
+
+// ─── PLAYGROUND ───────────────────────────────────────────────────────────────
+
+function renderPlayground(ch) {
+  const schemaHTML = SCHEMA_DISPLAY.map(t => `
+    <div class="table-item">
+      <div class="table-name">${t.name}</div>
+      ${t.cols.map(c => `
+        <div class="col-item">
+          <span class="${c.pk ? 'col-pk' : ''}">${c.name}</span>
+          <span class="col-type">${c.type}${c.pk ? ' PK' : ''}</span>
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+
+  const tabsHTML = SAMPLE_QUERIES.map((sq, i) => `
+    <div class="query-tab ${i === 0 ? 'active' : ''}" onclick="loadSampleQuery(${i})">${sq.label}</div>
+  `).join('');
+
+  return `
+    <div class="playground">
+      <div class="playground-header">
+        <div class="playground-title">
+          <span>⚡</span>
+          Live SQL Playground
+        </div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--green)">● Database Ready</div>
+      </div>
+      <div class="playground-body">
+        <div class="schema-panel">
+          <h4>📋 Schema</h4>
+          ${schemaHTML}
+        </div>
+        <div class="editor-panel">
+          <div class="query-tabs">${tabsHTML}</div>
+          <textarea class="sql-editor" id="sqlEditor" spellcheck="false" placeholder="Write your SQL here...">${ch.playground.defaultQuery}</textarea>
+          <div class="editor-toolbar">
+            <button class="run-btn" onclick="runQuery()">▶ Run Query</button>
+            <button class="hint-btn" onclick="toggleHint()">💡 Hint</button>
+            <button class="clear-btn" onclick="clearEditor()">✕ Clear</button>
+          </div>
+          <div class="hint-panel" id="hintPanel">${ch.playground.hint}</div>
+          <div class="results-panel" id="resultsPanel">
+            <div class="results-header" style="background:transparent;border:none;padding:20px;color:var(--muted)">
+              Run a query to see results here ↑
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function attachPlaygroundHandlers(ch) {
+  // Keyboard shortcut: Ctrl/Cmd + Enter to run
+  const editor = document.getElementById('sqlEditor');
+  if (editor) {
+    editor.addEventListener('keydown', e => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        runQuery();
+      }
+    });
+  }
+
+  // Sample query tabs
+  document.querySelectorAll('.query-tab').forEach((tab, i) => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.query-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      if (editor) editor.value = SAMPLE_QUERIES[i].q;
+    });
+  });
+}
+
+function loadSampleQuery(i) {
+  const editor = document.getElementById('sqlEditor');
+  if (editor) editor.value = SAMPLE_QUERIES[i].q;
+}
+
+function toggleHint() {
+  const panel = document.getElementById('hintPanel');
+  if (panel) panel.classList.toggle('show');
+}
+
+function clearEditor() {
+  const editor = document.getElementById('sqlEditor');
+  if (editor) editor.value = '';
+  document.getElementById('resultsPanel').innerHTML = `
+    <div class="results-header" style="background:transparent;border:none;padding:20px;color:var(--muted)">
+      Editor cleared. Write a new query above ↑
+    </div>`;
+}
+
+function runQuery() {
+  if (!db) {
+    document.getElementById('resultsPanel').innerHTML = `
+      <div class="result-error">⚠ Database is still loading. Please wait a moment and try again.</div>`;
+    return;
+  }
+
+  const sql = document.getElementById('sqlEditor').value.trim();
+  if (!sql) {
+    document.getElementById('resultsPanel').innerHTML = `
+      <div class="result-error">Please write a SQL query first.</div>`;
+    return;
+  }
+
+  const resultsPanel = document.getElementById('resultsPanel');
+
+  try {
+    // Handle multiple statements
+    const statements = sql.split(';').map(s => s.trim()).filter(s => s.length > 0);
+    let lastResult = null;
+    let affectedCount = 0;
+
+    for (const stmt of statements) {
+      const upper = stmt.toUpperCase().trim();
+      if (upper.startsWith('SELECT')) {
+        const res = db.exec(stmt);
+        lastResult = { type: 'select', data: res };
+      } else {
+        db.run(stmt);
+        affectedCount++;
+        lastResult = { type: 'write', stmt };
+      }
+    }
+
+    if (!lastResult) return;
+
+    if (lastResult.type === 'select') {
+      const res = lastResult.data;
+      if (!res || res.length === 0) {
+        resultsPanel.innerHTML = `
+          <div class="results-header">No rows returned.</div>`;
+        return;
+      }
+      const { columns, values } = res[0];
+      const rowCount = values.length;
+
+      const headerCells = columns.map(c => `<th>${c}</th>`).join('');
+      const dataRows = values.map(row =>
+        `<tr>${row.map(cell => `<td>${cell === null ? '<em style="color:#475569">NULL</em>' : cell}</td>`).join('')}</tr>`
+      ).join('');
+
+      resultsPanel.innerHTML = `
+        <div class="results-header">
+          Results
+          <span class="result-count">${rowCount} row${rowCount !== 1 ? 's' : ''}</span>
+        </div>
+        <div class="results-table-wrap">
+          <table class="results-tbl">
+            <thead><tr>${headerCells}</tr></thead>
+            <tbody>${dataRows}</tbody>
+          </table>
+        </div>`;
+    } else {
+      // Non-SELECT: show success, then re-show if they followed with comment
+      resultsPanel.innerHTML = `
+        <div class="result-success">✅ Statement executed successfully. Run a SELECT query to see the updated data.</div>`;
+    }
+
+  } catch (err) {
+    resultsPanel.innerHTML = `
+      <div class="result-error">
+        <strong>SQL Error:</strong><br>${err.message}<br><br>
+        <span style="color:#475569">Tip: Check your spelling, quotes around text values, and make sure the table and column names are correct.</span>
+      </div>`;
+  }
+}
+
+// ─── BOOT ─────────────────────────────────────────────────────────────────────
+
+(async () => {
+  await initDB();
+  renderSidebar();
+  renderChapter();
+  renderProgress();
+})();
+</script>
+</body>
+</html>
